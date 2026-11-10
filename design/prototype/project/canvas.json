@@ -1,1 +1,124 @@
-{"v":3,"createdOnFiles":{"v":1,"at":"2026-11-10T10:00:00Z"},"title":"Pennoa UI Design","launch":{"view":"canvas"},"pages":[],"boards":{"Main.dc.html":{"x":0,"y":0,"w":1280,"h":800,"title":"Home · Library","is_interactive":true},"Editor.dc.html":{"x":1360,"y":0,"w":1280,"h":800,"title":"Notebook editor · selection capsule · autocalculate","is_interactive":true},"AiSheet.dc.html":{"x":2720,"y":0,"w":1280,"h":800,"title":"Ask AI side sheet (dark)","is_interactive":true},"Scanner.dc.html":{"x":0,"y":1140,"w":1280,"h":800,"title":"Scanner (dark)","is_interactive":true},"Learn.dc.html":{"x":1360,"y":1140,"w":1280,"h":800,"title":"Learning path · focus timer in the island","is_interactive":true},"Export.dc.html":{"x":2720,"y":1140,"w":1280,"h":800,"title":"Export to PDF","is_interactive":true},"Settings.dc.html":{"x":0,"y":2280,"w":1280,"h":800,"title":"Settings · sync & AI providers","is_interactive":true},"Tokens.dc.html":{"x":1360,"y":2280,"w":1280,"h":1100,"title":"Design system · Calm Aero tokens"},"Paginate.dc.html":{"x":2720,"y":2280,"w":1280,"h":800,"title":"Export layout · infinite canvas → pages (auto / manual)","is_interactive":true}},"order":["Main.dc.html","Editor.dc.html","AiSheet.dc.html","Scanner.dc.html","Learn.dc.html","Export.dc.html","Settings.dc.html","Tokens.dc.html","Paginate.dc.html"],"notes":{"t1":{"x":0,"y":-300,"text":"Pennoa — core flows (Yoga, 1280×800)","kind":"title1","maxW":4000},"t2":{"x":0,"y":840,"text":"Scan, learn, export","kind":"title1","maxW":4000},"t3":{"x":0,"y":1980,"text":"Settings, design system & export layout","kind":"title1","maxW":4000}},"designSystems":[]}
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "AiSheet.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Ask AI side sheet (dark)",
+      "w": 1280,
+      "x": 2720,
+      "y": 0
+    },
+    "Editor.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Notebook editor · selection capsule · autocalculate",
+      "w": 1280,
+      "x": 1360,
+      "y": 0
+    },
+    "Export.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Export to PDF",
+      "w": 1280,
+      "x": 2720,
+      "y": 1140
+    },
+    "Learn.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Learning path · focus timer in the island",
+      "w": 1280,
+      "x": 1360,
+      "y": 1140
+    },
+    "Main.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Home · Library",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Paginate.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Export layout · infinite canvas → pages (auto / manual)",
+      "w": 1280,
+      "x": 2720,
+      "y": 2280
+    },
+    "Scanner.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Scanner (dark)",
+      "w": 1280,
+      "x": 0,
+      "y": 1140
+    },
+    "Settings.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "title": "Settings · sync & AI providers",
+      "w": 1280,
+      "x": 0,
+      "y": 2280
+    },
+    "Tokens.dc.html": {
+      "h": 1100,
+      "title": "Design system · Calm Aero tokens",
+      "w": 1280,
+      "x": 1360,
+      "y": 2280
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-10T10:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "t1": {
+      "kind": "title1",
+      "maxW": 4000,
+      "text": "Pennoa — core flows (Yoga, 1280×800)",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 4000,
+      "text": "Scan, learn, export",
+      "w": 240,
+      "x": 0,
+      "y": 840
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 4000,
+      "text": "Settings, design system & export layout",
+      "w": 240,
+      "x": 0,
+      "y": 1980
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Editor.dc.html",
+    "AiSheet.dc.html",
+    "Scanner.dc.html",
+    "Learn.dc.html",
+    "Export.dc.html",
+    "Settings.dc.html",
+    "Tokens.dc.html",
+    "Paginate.dc.html"
+  ],
+  "pages": [],
+  "title": "Pennoa UI Design"
+}
