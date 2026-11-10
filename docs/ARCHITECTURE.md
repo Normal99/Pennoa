@@ -30,11 +30,11 @@
 ## 2. Process model
 
 ```
-┌────────────────── pennoa (main process) ─────────────────┐
-│ UI thread: winit 0.31 event loop, Slint UI, input      │
+┌────────────────── pennoa (main process) ────────────────┐
+│ UI thread: winit 0.31 event loop, Slint UI, input       │
 │ Render: wgpu + vello_gpu (page tiles, wet-ink overlay)  │
-│ tokio runtime: sync, AI HTTP, D-Bus, file IO           │
-│ rayon pool: geometry, PDF export, scanner image ops    │
+│ tokio runtime: sync, AI HTTP, D-Bus, file IO            │
+│ rayon pool: geometry, PDF export, scanner image ops     │
 └──────┬─────────────────────────────────────────────┬────┘
        │ IPC (Unix socket, length-prefixed postcard)  │
 ┌──────▼────────────┐                     ┌───────────▼──────────┐
