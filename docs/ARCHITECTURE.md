@@ -437,7 +437,7 @@ Design rules from now on, so these ports stay possible:
 - **All OS-specific code lives behind `si-platform` traits:** pen input backend, camera and document scanner, keyring, notifications and DND, share, IME, background tasks, file picker.
 - `zbus`, `ashpd` and other Linux-only crates are only used inside the Linux implementation. Nothing in the core crates assumes Linux.
 - **ML uses llama.cpp as the portable runtime.** It runs on Metal (Apple), Vulkan/OpenCL (Android) and CPU. Model packs declare minimum RAM, and the app checks available memory before loading (iPhone has a ceiling of about 6 GB).
-- **Licensing for Apple stores** (ADR-0011). GPL-3 conflicts with App Store terms. The plan, while the project still has few contributors:
+- **Licensing for Apple stores** (ADR-0011, adopted). GPL-3 conflicts with App Store terms. The fix, now in `LICENSE-ADDITIONAL-PERMISSIONS.md`:
   - add a GPL-3 §7 *additional permission* allowing App Store distribution, as KDE Connect for iOS does;
   - add a second permission allowing Slint under its Royalty-free licence on iOS;
   - collect contributor agreement to both (CLA or DCO plus an inbound statement).

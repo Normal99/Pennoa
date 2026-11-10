@@ -1,6 +1,6 @@
 # ADR-0011: Platforms beyond Linux/Windows, and store licensing
 
-- Status: proposed (licence permissions need the maintainer's confirmation)
+- Status: accepted. The maintainer approved both licence permissions on 2026-11-10; the text is in `LICENSE-ADDITIONAL-PERMISSIONS.md` and contributions are covered via `CONTRIBUTING.md` (DCO + inbound licence).
 - Date: 2026-11-10
 
 ## Context
@@ -18,7 +18,7 @@
   - Each OS gets its own pen backend where winit falls short: NSEvent on macOS, android-activity on Android, our own UIView on iOS.
   - llama.cpp is the portable ML runtime.
 - **Order:** macOS → Android → iPadOS, with the iPhone as a companion app.
-- **Licensing (proposed):** add GPL-3 §7 additional permissions *now*, while the contributor set is small, allowing:
+- **Licensing (adopted):** add GPL-3 §7 additional permissions *now*, while the contributor set is small, allowing:
   1. distribution through Apple's App Store and TestFlight despite their usage rules (modelled on KDE Connect iOS);
   2. linking with Slint under its Royalty-free licence on platforms where its GPL option is unusable.
 

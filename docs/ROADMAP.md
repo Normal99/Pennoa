@@ -26,4 +26,4 @@ Each phase ends with measurable exit criteria. Phases 5–8 can overlap once Pha
 3. **Google Drive OAuth client:** the project needs its own Google Cloud OAuth client, which requires Google verification for the Drive scope.
 4. **IME under Flatpak:** can KWin launch a Flatpak-ed input method, or is a host package needed?
 5. **Legal entity:** a small association or foundation is needed for Microsoft publisher verification (OneNote/Teams sign-in in schools) and an Apple developer account.
-6. **App Store licence permission:** confirm adding the GPL-3 §7 App Store and Slint permissions now, before outside contributors join (ADR-0011).
+6. **Licence review:** have `LICENSE-ADDITIONAL-PERMISSIONS.md` reviewed by a lawyer or the FSF/FSFE licensing team before the first App Store release. The permissions themselves were adopted on 2026-11-10.
