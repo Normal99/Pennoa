@@ -15,7 +15,7 @@
 - Real-time multi-user collaboration.
 - macOS, Android and iOS.
 
-**Performance targets** (measured on a Lenovo Yoga-class 2-in-1, KDE Plasma 6, Wayland)
+**Performance targets** (measured on a Lenovo Yoga-class 2-in-1 under **Hyprland**, the main test bench, and re-checked on KDE Plasma 6)
 
 | Metric | Target |
 |---|---|
@@ -39,16 +39,16 @@
        │ IPC (Unix socket, length-prefixed postcard)  │
 ┌──────▼────────────┐                     ┌───────────▼──────────┐
 │ pennoa-ml         │                     │ pennoa-ime           │
-│ model host:       │◄────────────────────│ Plasma virtual       │
-│ Tier A/B/math,    │  recognition calls  │ keyboard (handwriting│
-│ OCR, dewarp, LoRA │                     │ into other apps)     │
+│ model host:       │◄────────────────────│ input method (v2 /   │
+│ Tier A/B/math,    │  recognition calls  │ KWin v1): handwriting│
+│ OCR, dewarp, LoRA │                     │ into other apps      │
 └───────────────────┘                     └──────────────────────┘
 ```
 
 Why a separate ML process:
 - Large models (2–9B parameters) can't stall or crash the ink path.
 - Their memory can be released when idle.
-- The IME, which is a separate process launched by KWin, can share the same recogniser.
+- The IME is a separate process (started by Hyprland's `exec-once` or launched by KWin) and can share the same recogniser.
 
 ## 3. Workspace layout
 
@@ -107,10 +107,20 @@ Rule: `pn-core`, `pn-ink`, `pn-store`, `pn-math`, `pn-learn` and `pn-ai` never d
    - Predict 1–2 frames of pen motion with a Kalman filter.
    - Read input from coalesced/historical samples.
    - Use the Wayland `wp_presentation` feedback to measure real latency in `pn-bench`.
+   - **Tearing control.** While a pen stroke is in progress, ask for asynchronous page flips with `wp_tearing_control_v1` (hint `async`). This cuts up to a frame of latency.
+     - Hyprland honours it when `general:allow_tearing = true` and a window rule marks Pennoa as `immediate`. We ship a config snippet for that.
+     - The app falls back to `Fifo` when tearing isn't allowed.
+     - Also use `wp_fifo_v1`/`wp_commit_timing_v1` where available.
 5. **Fallbacks**, if the Phase 0 spike fails:
    - (b) Slint's own winit backend for the UI, with a raw `zwp_tablet_v2` listener (wayland-protocols) bound on the same `wl_display`.
    - (c) egui on winit 0.31 once egui's port lands.
-6. **X11:** a mouse-only fallback (no pressure) until winit gains XInput2 tablet support. Plasma 6 defaults to Wayland, so this is acceptable.
+6. **X11:** a mouse-only fallback (no pressure) until winit gains XInput2 tablet support. Hyprland is Wayland-only and Plasma 6 defaults to Wayland, so this is acceptable.
+7. **Compositors.** Pennoa uses only standard Wayland protocols, verified in Hyprland's source on 2026-11-10:
+   - tablet-v2, presentation-time, tearing-control-v1, fifo-v1, commit-timing-v1, fractional-scale-v1;
+   - input-method-v2 + text-input-v3 + virtual-keyboard-v1;
+   - layer-shell, idle-inhibit.
+
+   So it works on Hyprland and KDE Plasma, and should work on other wlroots-style compositors (Sway, niri, river). GNOME/Mutter is best-effort.
 
 **Ink pipeline.**
 - Raw samples go through One-Euro filter smoothing, then into a variable-width outline.
@@ -184,7 +194,10 @@ corrections/<device-ulid>.jsonl     Your handwriting corrections (training data 
   - The identity lives in the OS keyring and is exported as a recovery phrase.
   - Adding a device means scanning a QR code from an existing device or entering the phrase.
 - **Backups:** versioned snapshots (default nightly, keep 30) to the same remote or a *second* one, such as a NAS. Restoring works per page or per notebook.
-- **Secrets** go through the `keyring-core` + Secret Service store, which KWallet serves on Plasma.
+- **Secrets** go through the `keyring-core` + Secret Service store.
+  - On Plasma, KWallet provides Secret Service.
+  - On Hyprland, the provider is gnome-keyring or KeePassXC, unlocked via PAM at login.
+  - If no Secret Service is running, Pennoa uses an age-encrypted file unlocked with a passphrase, and tells the user once.
 
 ## 7. Handwriting recognition (ADR-0003)
 
@@ -339,7 +352,11 @@ Feature parity targets come from the survey of Adobe Scan, Genius Scan, the Goog
 - **Flashcards:** come from any selection or are AI-generated, and are scheduled with **fsrs 7** (BSD-3).
 - **Focus timer:**
   - Pomodoro presets plus custom lengths; the countdown lives in the floating island.
-  - Laptop do-not-disturb uses Plasma notification inhibition (`org.freedesktop.Notifications` inhibit / portal).
+  - Laptop do-not-disturb has a backend per desktop, because there is no cross-desktop DND standard:
+    - Plasma: notification inhibition over D-Bus;
+    - Hyprland: whichever notification daemon is running, i.e. `makoctl mode -a do-not-disturb`, `dunstctl set-paused true` or `swaync-client -dn`;
+    - otherwise: none, with a hint in Settings.
+  - During focus, `idle-inhibit` keeps the screen awake while reading.
   - The phone gets a KDE Connect ping at start and end. Phone DND itself can't be controlled over KDE Connect's D-Bus API.
   - Statistics feed the Home widgets.
 
@@ -349,12 +366,20 @@ Feature parity targets come from the survey of Adobe Scan, Genius Scan, the Goog
   - Uses the `org.kde.kdeconnect` daemon, device, share, clipboard and ping interfaces.
   - These are internal, not a stable public API, so they sit behind an adapter with version checks.
   - Features: phone photo → scan inbox (`shareReceived`), send a PDF to the phone (`shareUrl`), clipboard, focus pings.
-- **Handwriting in other apps** (`pennoa-ime`):
-  - A `.desktop` file with `X-KDE-Wayland-VirtualKeyboard=true` makes it selectable under *System Settings → Virtual Keyboard*.
-  - KWin launches it and talks `zwp_input_method_v1` plus input-panel.
-  - It shows a writing pad, recognises via `pennoa-ml`, and commits text to apps that support text-input v1/v2/v3.
-  - Only one input method can be active at a time, and KDE's `plasma-keyboard` is the reference implementation.
-  - The fallback is copying to the clipboard.
+- **Handwriting in other apps** (`pennoa-ime`) has two Wayland backends behind one writing pad:
+  - **Hyprland / wlroots-style** (primary test bench): `zwp_input_method_v2` commits text into apps using text-input-v3, which covers GTK, Qt 6, Firefox and Chromium with Wayland IME enabled.
+    - The writing pad is a `layer-shell` surface docked at the bottom of the screen.
+    - It is started with `exec-once = pennoa-ime` and toggled by a keybind or a pen button (`bind = …, exec, pennoa-ime --toggle`).
+    - Only one input-method-v2 client can be bound at a time, so it can't run alongside fcitx5. Settings explains this.
+    - Fallback: `zwp_virtual_keyboard_v1` types the text for apps without text-input.
+  - **KDE Plasma:**
+    - A `.desktop` file with `X-KDE-Wayland-VirtualKeyboard=true` makes it selectable under *System Settings → Virtual Keyboard*.
+    - KWin launches it and talks `zwp_input_method_v1` plus input-panel; KDE's `plasma-keyboard` is the reference.
+  - Recognition goes through `pennoa-ml` in both backends. The last resort is copying to the clipboard.
+- **Posture and rotation** (laptop ↔ tablet):
+  - Screen orientation comes from `iio-sensor-proxy` over D-Bus, which works on any desktop.
+  - Plasma's tablet-mode signal is used where available.
+  - On Hyprland, a `bindl = , switch:on:<tablet-mode switch>, exec, pennoa --posture tablet` line in the config tells Pennoa when the screen folds back. A snippet is shipped.
 - **OneNote** (`pn-onenote`):
   - Microsoft Graph with delegated device-code OAuth (`Notes.ReadWrite`, `/consumers` and `/common`).
   - Creates pages as HTML with recognised text, ink rendered to images and the PDF attached.
@@ -426,7 +451,7 @@ Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/cla
 
 | Platform | Verdict | Main work |
 |---|---|---|
-| **Linux** (KDE Plasma, Wayland) | First | — |
+| **Linux** (Wayland: Hyprland + KDE Plasma) | First | Hyprland is the main test bench |
 | **Windows** | Phase 9 | WM_POINTER pen comes from winit 0.31; keyring store; SFTP replacement |
 | **macOS** | Feasible, low risk | Own NSEvent hook for Wacom pressure and tilt (winit 0.31 has none on macOS); Input Method Kit for handwriting in other apps; notarised DMG and Homebrew, **not** the Mac App Store |
 | **Android** | Feasible, medium effort, easiest licensing (Google Play and F-Droid accept GPL) | Own stylus input via `android-activity` (winit drops stylus pressure and tilt); front-buffered low-latency renderer and motion prediction through JNI; CameraX/SAF through JNI; **handwriting IME is feasible** with the Android 14+ stylus-handwriting APIs |
@@ -448,4 +473,4 @@ Design rules from now on, so these ports stay possible:
 - **Tests:** unit and property tests in the core crates; golden-image tests for the renderer; IPC contract tests.
 - **Benchmarks:** `pn-bench latency` replays recorded pen traces and measures pen-to-photon latency with presentation feedback. `pn-bench recog` runs the accuracy benchmarks.
 - **CI:** `cargo clippy -D warnings`, `cargo test`, `cargo deny check` (licences, advisories, bans), fuzz smoke tests.
-- **Packaging:** Flatpak on Flathub is primary, because the portals fit (camera, print, file chooser). The IME may need a host-installed helper, because KWin launches it; this is checked in Phase 8. Model packs download on first use.
+- **Packaging:** Flatpak on Flathub is primary, because the portals fit (camera, print, file chooser). The IME may need a host-installed helper, because KWin or Hyprland's `exec-once` launches it; this is checked in Phase 8. An AUR package is planned too, since many Hyprland users are on Arch. Model packs download on first use.

@@ -12,7 +12,7 @@
 
 It is built for almost every language and script, starting with **Norwegian and English**.
 
-Pennoa targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a keyboard-side camera. It runs on KDE Plasma (Wayland) first and comes to Windows later.
+Pennoa targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a keyboard-side camera. It runs on Linux Wayland first, with **Hyprland** (the main test bench) and **KDE Plasma** both supported, and comes to Windows later.
 
 ## What it does
 | Area | Feature |
@@ -26,7 +26,7 @@ Pennoa targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a ke
 | Scanner | Uses the Yoga's keyboard camera or your phone: edge detection, auto-capture, dewarping, enhancement, OCR, multi-page PDF |
 | Learning | AI-built learning paths from your textbook and notes, quizzes, FSRS flashcards, and a focus timer |
 | Phone | KDE Connect: phone camera → scan inbox, file and clipboard sharing, focus pings |
-| Everywhere | Handwriting input in *other* apps through a Plasma virtual keyboard |
+| Everywhere | Handwriting input in *other* apps through an input method (Hyprland: input-method-v2; Plasma: virtual keyboard) |
 | Sync | Your own Google Drive, OneDrive, Nextcloud/WebDAV, NAS (SFTP), S3 or a local folder. Optional end-to-end encryption and versioned backups |
 | OneNote | Upload pages through Microsoft Graph |
 
@@ -37,3 +37,4 @@ Pennoa targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a ke
 - [`docs/RESEARCH.md`](docs/RESEARCH.md): verified library, model, licence and terms findings (Nov 2026)
 - [`docs/adr/`](docs/adr/): decision records
 - [`design/prototype/`](design/prototype/): source of the interactive UI prototype
+- [`contrib/hyprland/`](contrib/hyprland/): suggested Hyprland settings (tearing, IME, tablet switch)

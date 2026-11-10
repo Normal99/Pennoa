@@ -150,3 +150,16 @@ All facts were checked against primary sources (crates.io/docs.rs, upstream repo
 - It also has a global floating island, floating navigation bars, fully circular toggles and "Elastic Feedback" motion.
 - Pennoa adopts the structure and motion and **rejects the glass** (see DESIGN-SYSTEM.md).
 - Sources: [Beebom](https://gadgets.beebom.com/news/coloros-17-is-official-with-new-fluid-design-powerful-ai-features-more), [Smartprix](https://www.smartprix.com/bytes/coloros-17-first-look-heres-everything-new/), [Cashify](https://www.cashify.in/whats-new-in-coloros-17-fluid-animations-and-more).
+
+## 7. Hyprland (main test bench), verified 2026-11-10
+Hyprland master (commit `e293217`, 2026-11-10) implements these protocols, according to the files in `src/protocols/`:
+- `Tablet` (tablet-v2), `PresentationTime`, `TearingControl`, `Fifo`, `CommitTiming`, `FractionalScale`;
+- `InputMethodV2`, `TextInputV3`, `TextInputV1`, `VirtualKeyboard`;
+- `LayerShell`, `IdleInhibit`, `SecurityContext`.
+
+Consequences:
+- Pen input via winit 0.31 works there.
+- Latency can be measured with presentation-time, and lowered with tearing control (`allow_tearing` + an `immediate` window rule).
+- Pennoa's handwriting IME uses input-method-v2 with a layer-shell pad.
+- Desktop integrations that are KDE-specific (KWin virtual keyboard, KWallet, notification inhibition, tablet-mode D-Bus) need Hyprland equivalents: input-method-v2, gnome-keyring/KeePassXC Secret Service, mako/dunst/swaync DND commands, and `bindl` switch events.
+- Source: https://github.com/hyprwm/Hyprland/tree/main/src/protocols
