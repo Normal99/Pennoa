@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>StudyInk · Settings</title>
+<title>Pennoa · Settings</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -41,7 +41,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
         </span>
       </button>
     </sc-for>
-    <div style="margin-top: auto; font-size: 12px; color: var(--text3); padding: 0 14px; line-height: 18px">StudyInk 0.1 · free software under GPL-3.0<br>Your notes stay in your own storage.</div>
+    <div style="margin-top: auto; font-size: 12px; color: var(--text3); padding: 0 14px; line-height: 18px">Pennoa 0.1 · free software under GPL-3.0<br>Your notes stay in your own storage.</div>
   </nav>
 
   <main class="swap" style="flex: 1; padding: 24px 32px 24px 8px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; gap: 16px">
@@ -97,7 +97,7 @@ class Component extends DCLogic {
     const Btn = (title, sub, value) => ({ kind: 'button', title, sub, value });
     const panels = {
       sync: { title: 'Sync & backup', lead: 'Bring your own storage. Each page syncs on its own, so edits from two devices merge instead of conflicting.', groups: [
-        { name: 'Storage', rows: [B('Google Drive', 'StudyInk folder · 2.1 GB', 'Connected', 'ok'), B('Home NAS · SFTP', 'Nightly snapshot, keeps 30 versions', 'Backup', 'accent'), Btn('Add storage', 'OneDrive, WebDAV / Nextcloud, S3, local folder (Syncthing)', 'Add')] },
+        { name: 'Storage', rows: [B('Google Drive', 'Pennoa folder · 2.1 GB', 'Connected', 'ok'), B('Home NAS · SFTP', 'Nightly snapshot, keeps 30 versions', 'Backup', 'accent'), Btn('Add storage', 'OneDrive, WebDAV / Nextcloud, S3, local folder (Syncthing)', 'Add')] },
         { name: 'Safety', rows: [T('e2e', 'End-to-end encryption', 'Files are encrypted before upload; only your devices hold the key'), T('snap', 'Versioned snapshots', 'Restore any page as it was'), T('wifi', 'Sync on metered networks', 'Off saves mobile data when tethering')] }
       ] },
       ai: { title: 'AI providers', lead: 'Pick who answers. Keys live in the system keyring, never in your notes.', hasNotice: true,
@@ -114,7 +114,7 @@ class Component extends DCLogic {
       pen: { title: 'Pen & ink', lead: 'Tuned for low latency on the Yoga’s pen.', groups: [
         { name: 'Input', rows: [T('palm', 'Palm rejection', 'Ignore touch while the pen is near the screen'), T('predict', 'Stroke prediction', 'Draws a few milliseconds ahead to hide latency'), Btn('Pressure curve', 'Light hand · default · firm', 'Adjust')] }
       ] },
-      phone: { title: 'Phone · KDE Connect', lead: 'Use your phone’s camera, notifications and clipboard with StudyInk.', groups: [
+      phone: { title: 'Phone · KDE Connect', lead: 'Use your phone’s camera, notifications and clipboard with Pennoa.', groups: [
         { name: 'OnePlus 16', rows: [B('Connection', 'Paired over Wi-Fi', 'Connected', 'ok'), T('inbox', 'Phone photos → scan inbox', 'Share a photo to your PC and it becomes a cleaned-up scan'), T('dnd', 'Focus pings', 'Your phone gets a ping when a focus session starts and ends'), T('clip', 'Share clipboard', 'Copy on the phone, paste into a note')] }
       ] },
       look: { title: 'Appearance', lead: 'Calm Aero: solid surfaces, light frosting only on floating tools.', groups: [

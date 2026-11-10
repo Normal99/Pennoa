@@ -1,6 +1,6 @@
-# StudyInk (working name)
+# Pennoa
 
-**StudyInk is a fast, local-first notebook for students on pen-enabled Linux laptops.** You write by hand, and it turns your handwriting into text and math, explains it with AI and calculates it. It also scans, exports, quizzes you and syncs to storage you already own.
+**Pennoa is a fast, local-first notebook for students on pen-enabled Linux laptops.** You write by hand, and it turns your handwriting into text and math, explains it with AI and calculates it. It also scans, exports, quizzes you and syncs to storage you already own.
 
 > Status: **design phase**. This repository contains the architecture, research, roadmap and UI design. There is no application code yet.
 > Licence: **GPL-3.0-or-later** with two additional permissions, for app-store distribution and for Slint's royalty-free licence. See `LICENSE` and `LICENSE-ADDITIONAL-PERMISSIONS.md`; contributors, see `CONTRIBUTING.md`.
@@ -12,7 +12,7 @@
 
 It is built for almost every language and script, starting with **Norwegian and English**.
 
-StudyInk targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a keyboard-side camera. It runs on KDE Plasma (Wayland) first and comes to Windows later.
+Pennoa targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a keyboard-side camera. It runs on KDE Plasma (Wayland) first and comes to Windows later.
 
 ## What it does
 | Area | Feature |

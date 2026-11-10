@@ -14,7 +14,7 @@
 
 ## Decision
 - **Code structure:**
-  - All OS integration goes behind `si-platform` traits.
+  - All OS integration goes behind `pn-platform` traits.
   - Each OS gets its own pen backend where winit falls short: NSEvent on macOS, android-activity on Android, our own UIView on iOS.
   - llama.cpp is the portable ML runtime.
 - **Order:** macOS → Android → iPadOS, with the iPhone as a companion app.

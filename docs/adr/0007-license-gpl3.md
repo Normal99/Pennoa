@@ -4,7 +4,7 @@
 - Date: 2026-11-10
 
 ## Decision
-- **All code is GPL-3.0** (`GPL-3.0-or-later WITH LicenseRef-StudyInk-additional-permissions` for our crates). It carries two §7 additional permissions, for app-store distribution and Slint's royalty-free licence (ADR-0011).
+- **All code is GPL-3.0** (`GPL-3.0-or-later WITH LicenseRef-Pennoa-additional-permissions` for our crates). It carries two §7 additional permissions, for app-store distribution and Slint's royalty-free licence (ADR-0011).
 - **Dependency licences** must be on the `deny.toml` allow-list: MIT, Apache-2.0, BSD, ISC, Zlib, MPL-2.0, Unicode, CC0, GPL-3.0, LGPL-3.0.
   - GPL-2.0-only is incompatible and banned.
   - Slint is used under its GPLv3 option.
@@ -15,5 +15,5 @@
 - **Secrets:** API keys are never committed. OAuth client IDs are allowed in source.
 
 ## Consequences
-- Anyone may use, modify and redistribute StudyInk, including commercially, under the same licence.
+- Anyone may use, modify and redistribute Pennoa, including commercially, under the same licence.
 - Non-commercial model packs therefore can't be bundled.

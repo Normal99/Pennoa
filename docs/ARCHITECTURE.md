@@ -1,4 +1,4 @@
-# StudyInk architecture
+# Pennoa architecture
 
 > Status: design, v0.1 (2026-11-10). Facts about libraries, models and terms are verified in [RESEARCH.md](RESEARCH.md); decisions are recorded in [adr/](adr/).
 
@@ -30,7 +30,7 @@
 ## 2. Process model
 
 ```
-┌──────────────── studyink (main process) ───────────────┐
+┌────────────────── pennoa (main process) ─────────────────┐
 │ UI thread: winit 0.31 event loop, Slint UI, input      │
 │ Render: wgpu + vello_gpu (page tiles, wet-ink overlay)  │
 │ tokio runtime: sync, AI HTTP, D-Bus, file IO           │
@@ -38,7 +38,7 @@
 └──────┬─────────────────────────────────────────────┬────┘
        │ IPC (Unix socket, length-prefixed postcard)  │
 ┌──────▼────────────┐                     ┌───────────▼──────────┐
-│ studyink-ml       │                     │ studyink-ime         │
+│ pennoa-ml         │                     │ pennoa-ime           │
 │ model host:       │◄────────────────────│ Plasma virtual       │
 │ Tier A/B/math,    │  recognition calls  │ keyboard (handwriting│
 │ OCR, dewarp, LoRA │                     │ into other apps)     │
@@ -54,34 +54,34 @@ Why a separate ML process:
 
 ```
 crates/
-  si-core          domain model, commands, undo/redo, app event bus (no UI, no IO)
-  si-ink           stroke model, smoothing, prediction, hit-testing, lasso, geometry (kurbo)
-  si-input         pen/touch/mouse from winit 0.31, palm rejection, pressure curves
-  si-render        wgpu + vello_gpu renderer, page tile cache, wet-ink layer, thumbnails
-  si-ui            Slint components (.slint) + custom Slint platform on winit
-  si-store         file format, Automerge pages, content-addressed assets, SQLite index
-  si-sync          OpenDAL backends, sync engine, snapshots, age encryption
-  si-recognize     tiers, scheduler, model registry, correction store (client side of studyink-ml)
-  si-ml            model runtimes: llama.cpp / mistral.rs / candle / ort, behind one trait
-  si-math          LaTeX → AST, fend-core evaluation, Giac CAS through a C++ shim (cxx)
-  si-ai            LLM providers (Anthropic, OpenRouter, local), retrieval (RAG), prompt library
-  si-pdf           import (pdfium-render, hayro), export (krilla, typst)
-  si-layout        block clustering, reading order, auto/manual pagination of canvases
-  si-scan          camera (ashpd + PipeWire), detection, dewarp, enhance, OCR, assembly
-  si-learn         learning paths, quiz generation, FSRS scheduling, focus timer
-  si-kdeconnect    zbus adapter for kdeconnectd
-  si-onenote       OneNote import (onenote_parser) + Microsoft Graph client (OneNote, OneDrive, optional Teams/Education)
-  si-import        context-source pipeline: PDF, DOCX/PPTX/XLSX, OneNote, images → pages and/or AI context
-  si-platform      per-OS traits: pen backend, camera/scanner, keyring, notifications, share, IME, background tasks
-  si-ipc           shared IPC protocol types
+  pn-core          domain model, commands, undo/redo, app event bus (no UI, no IO)
+  pn-ink           stroke model, smoothing, prediction, hit-testing, lasso, geometry (kurbo)
+  pn-input         pen/touch/mouse from winit 0.31, palm rejection, pressure curves
+  pn-render        wgpu + vello_gpu renderer, page tile cache, wet-ink layer, thumbnails
+  pn-ui            Slint components (.slint) + custom Slint platform on winit
+  pn-store         file format, Automerge pages, content-addressed assets, SQLite index
+  pn-sync          OpenDAL backends, sync engine, snapshots, age encryption
+  pn-recognize     tiers, scheduler, model registry, correction store (client side of pennoa-ml)
+  pn-ml            model runtimes: llama.cpp / mistral.rs / candle / ort, behind one trait
+  pn-math          LaTeX → AST, fend-core evaluation, Giac CAS through a C++ shim (cxx)
+  pn-ai            LLM providers (Anthropic, OpenRouter, local), retrieval (RAG), prompt library
+  pn-pdf           import (pdfium-render, hayro), export (krilla, typst)
+  pn-layout        block clustering, reading order, auto/manual pagination of canvases
+  pn-scan          camera (ashpd + PipeWire), detection, dewarp, enhance, OCR, assembly
+  pn-learn         learning paths, quiz generation, FSRS scheduling, focus timer
+  pn-kdeconnect    zbus adapter for kdeconnectd
+  pn-onenote       OneNote import (onenote_parser) + Microsoft Graph client (OneNote, OneDrive, optional Teams/Education)
+  pn-import        context-source pipeline: PDF, DOCX/PPTX/XLSX, OneNote, images → pages and/or AI context
+  pn-platform      per-OS traits: pen backend, camera/scanner, keyring, notifications, share, IME, background tasks
+  pn-ipc           shared IPC protocol types
 apps/
-  studyink         main app
-  studyink-ml      model-host process
-  studyink-ime     input-method process (zwp_input_method_v1)
-  si-bench         recognition and latency benchmarks
+  pennoa           main app
+  pennoa-ml        model-host process
+  pennoa-ime       input-method process (zwp_input_method_v1)
+  pn-bench         recognition and latency benchmarks
 ```
 
-Rule: `si-core`, `si-ink`, `si-store`, `si-math`, `si-learn` and `si-ai` never depend on UI crates. Every feature is testable headless.
+Rule: `pn-core`, `pn-ink`, `pn-store`, `pn-math`, `pn-learn` and `pn-ai` never depend on UI crates. Every feature is testable headless.
 
 ## 4. UI, input and rendering (highest-risk area)
 
@@ -90,13 +90,13 @@ Rule: `si-core`, `si-ink`, `si-store`, `si-math`, `si-learn` and `si-ai` never d
 - Its winit backend is still on winit 0.30, which has no tablet events.
 - winit 0.31 (currently beta.4) has full pen data on Wayland and Windows, but none on X11.
 
-**The design (ADR-0001):** StudyInk owns the window and event loop.
+**The design (ADR-0001):** Pennoa owns the window and event loop.
 
 1. **Window and events.**
    - The app runs **winit 0.31** directly.
    - Slint runs as a *custom platform* (`slint::platform::Platform` + `WindowAdapter`).
    - Keyboard, mouse, touch and IME events are forwarded into Slint with `dispatch_event`.
-   - `PointerSource::TabletTool` events (pressure, tilt, twist, eraser) go straight to `si-input`, then `si-ink`, never through Slint.
+   - `PointerSource::TabletTool` events (pressure, tilt, twist, eraser) go straight to `pn-input`, then `pn-ink`, never through Slint.
 2. **Hit routing.** A pen-down event goes to the ink engine if it lands on the canvas and not on a Slint overlay. Slint reports overlay rectangles each frame (toolbar, island, capsule, sheets).
 3. **Rendering into one wgpu surface, back to front:**
    1. Page background and *committed* ink. These are rendered by **vello_gpu** into cached 512 px tiles per zoom level and only re-rendered when they change.
@@ -106,7 +106,7 @@ Rule: `si-core`, `si-ink`, `si-store`, `si-math`, `si-learn` and `si-ai` never d
    - Request redraws on input, not on a timer, using the `Mailbox`/`Fifo` present mode chosen by measurement.
    - Predict 1–2 frames of pen motion with a Kalman filter.
    - Read input from coalesced/historical samples.
-   - Use the Wayland `wp_presentation` feedback to measure real latency in `si-bench`.
+   - Use the Wayland `wp_presentation` feedback to measure real latency in `pn-bench`.
 5. **Fallbacks**, if the Phase 0 spike fails:
    - (b) Slint's own winit backend for the UI, with a raw `zwp_tablet_v2` listener (wayland-protocols) bound on the same `wl_display`.
    - (c) egui on winit 0.31 once egui's port lands.
@@ -125,7 +125,7 @@ Rule: `si-core`, `si-ink`, `si-store`, `si-math`, `si-learn` and `si-ai` never d
 Library → Subject → Notebook → Page → Layers { Ink, Text, Image, PDF underlay, Recognition }
 ```
 
-**On disk** (the synced library root, e.g. `Google Drive/StudyInk/`):
+**On disk** (the synced library root, e.g. `Google Drive/Pennoa/`):
 ```
 library.am                          Automerge: subjects, ordering, settings to sync
 subjects/<ulid>/notebooks/<ulid>/
@@ -133,7 +133,7 @@ subjects/<ulid>/notebooks/<ulid>/
     pages/<ulid>.am                 Automerge: one page (see below)
     assets/<sha256>.<ext>           Content-addressed images, PDFs, scans (immutable)
 corrections/<device-ulid>.jsonl     Your handwriting corrections (training data you own)
-.studyink-local/                    NOT synced: index.sqlite, tile/thumbnail cache, model cache
+.pennoa-local/                    NOT synced: index.sqlite, tile/thumbnail cache, model cache
 ```
 
 **Page document** (Automerge):
@@ -172,7 +172,7 @@ corrections/<device-ulid>.jsonl     Your handwriting corrections (training data 
   | SFTP | Unix only, key authentication |
   | Local folder | Covers Syncthing and vendor desktop clients |
 
-  OpenDAL is pre-1.0, so `si-sync` wraps it behind our own `Remote` trait.
+  OpenDAL is pre-1.0, so `pn-sync` wraps it behind our own `Remote` trait.
 - **Algorithm:**
   1. Each device keeps a manifest of `(path, remote etag/mtime, local hash)`.
   2. A sync pass lists the remote, downloads changed `.am` files and **merges** them with `Automerge::merge`, then uploads the merged result when it differs.
@@ -193,8 +193,8 @@ The goal is the best accuracy on *your* handwriting, with model choice settled b
 | Tier | When | What | Where |
 |---|---|---|---|
 | **A: live** | Each word or line, about 300 ms after the pen lifts | Small stroke-sequence model (Transformer encoder + CTC, ~5–20 M params) for text, plus a small math model | ONNX via `ort`, CPU, < 150 ms |
-| **B: accurate** | Background, per page, when idle or on demand | Open-weight VLM on rasterised ink: Qwen3.5 2B/4B (Apache-2.0); for math, the **Uni-MuMER** Qwen3.5 fine-tunes. Contenders: Gemma 4, olmOCR-2, GLM-OCR, PaddleOCR-VL-1.6 | `studyink-ml` with llama.cpp (GGUF + mmproj) or mistral.rs; GPU/iGPU when available |
-| **C: cloud** | Low confidence, dense math, or the user asks | Vision model from your provider (Claude; DeepSeek V4.1 Flash via OpenRouter accepts images) | `si-ai` |
+| **B: accurate** | Background, per page, when idle or on demand | Open-weight VLM on rasterised ink: Qwen3.5 2B/4B (Apache-2.0); for math, the **Uni-MuMER** Qwen3.5 fine-tunes. Contenders: Gemma 4, olmOCR-2, GLM-OCR, PaddleOCR-VL-1.6 | `pennoa-ml` with llama.cpp (GGUF + mmproj) or mistral.rs; GPU/iGPU when available |
+| **C: cloud** | Low confidence, dense math, or the user asks | Vision model from your provider (Claude; DeepSeek V4.1 Flash via OpenRouter accepts images) | `pn-ai` |
 
 **How the tiers combine.**
 1. A result is replaced only by a higher-confidence one from a higher tier.
@@ -217,7 +217,7 @@ The goal is the best accuracy on *your* handwriting, with model choice settled b
 - The UI shows each pack's licence.
 - Packs under non-commercial licences (e.g. trained on IAM or CROHME) are allowed as optional "personal use" downloads, are clearly labelled and are never bundled.
 
-**Evidence over opinion.** `si-bench recog` runs every installed pack on an evaluation set built from the user's own pages. It reports:
+**Evidence over opinion.** `pn-bench recog` runs every installed pack on an evaluation set built from the user's own pages. It reports:
 - character error rate (CER) for text, per language,
 - expression exact-match for math,
 - diacritic error rate (æ ø å first),
@@ -232,14 +232,14 @@ The winner for each tier becomes the default.
   - Each pack has its own character set and language model.
   - The user's languages set which packs load.
 - Recognition text carries a BCP-47 language tag per region. Spell and lexicon checks come from Hunspell-compatible dictionaries per language.
-- `si-bench recog` reports per-language CER. A language ships only when it meets its target on an evaluation set.
+- `pn-bench recog` reports per-language CER. A language ships only when it meets its target on an evaluation set.
 
 **Printed text** (scans, PDFs without a text layer) uses `ocrs` for Latin print and PaddleOCR-VL or GLM-OCR for complex layouts.
 
 ## 8. Autocalculate (ADR-0005)
 
 ```
-selection → recognised LaTeX → si-math parser → AST
+selection → recognised LaTeX → pn-math parser → AST
    ├─ numeric / units  → fend-core          → exact or decimal result + units
    └─ symbolic (solve, d/dx, ∫, simplify) → Giac (C++ shim via cxx, GPL-3) → result
 result → "CAS-verified" chip → insert as ink-styled or typed text
@@ -265,7 +265,7 @@ trait LlmProvider {
   - Uses PDF `document` blocks, prompt caching for textbook context, and structured outputs (`output_config.format`) for quizzes and flashcards.
   - Handles `stop_reason: "refusal"` and server-side fallbacks.
 - **OpenRouter.** OpenAI-compatible `/chat/completions`, with any model the user picks (DeepSeek V4.x and others).
-- **Local** (optional). The same `studyink-ml` host runs a small instruct model for offline explanations.
+- **Local** (optional). The same `pennoa-ml` host runs a small instruct model for offline explanations.
 - **Not supported: Claude Pro/Max subscription login.**
   - Anthropic doesn't allow third-party apps to route requests through subscription credentials.
   - Scripted `claude -p` is also moving to API keys only (RESEARCH §3).
@@ -285,7 +285,7 @@ trait LlmProvider {
 
 ## 10. PDF (ADR-0006) and pagination (ADR-0009)
 
-**Pagination engine** (`si-layout`): turns an infinite canvas, or a page of another size, into printable pages without cutting anything important.
+**Pagination engine** (`pn-layout`): turns an infinite canvas, or a page of another size, into printable pages without cutting anything important.
 
 1. **Blocks.** Content is clustered into blocks:
    - ink strokes are grouped by spatial proximity and timing, using the recognition regions;
@@ -332,7 +332,7 @@ Feature parity targets come from the survey of Adobe Scan, Genius Scan, the Goog
 ## 12. Learning
 
 - **Learning paths:**
-  - Built from a textbook's table of contents plus your notes, as a topic graph (`si-learn`).
+  - Built from a textbook's table of contents plus your notes, as a topic graph (`pn-learn`).
   - Steps are generated with structured outputs.
   - Progress is tracked per step.
   - Quizzes are graded with explanations.
@@ -345,17 +345,17 @@ Feature parity targets come from the survey of Adobe Scan, Genius Scan, the Goog
 
 ## 13. Integrations
 
-- **KDE Connect** (`si-kdeconnect`, `zbus`):
+- **KDE Connect** (`pn-kdeconnect`, `zbus`):
   - Uses the `org.kde.kdeconnect` daemon, device, share, clipboard and ping interfaces.
   - These are internal, not a stable public API, so they sit behind an adapter with version checks.
   - Features: phone photo → scan inbox (`shareReceived`), send a PDF to the phone (`shareUrl`), clipboard, focus pings.
-- **Handwriting in other apps** (`studyink-ime`):
+- **Handwriting in other apps** (`pennoa-ime`):
   - A `.desktop` file with `X-KDE-Wayland-VirtualKeyboard=true` makes it selectable under *System Settings → Virtual Keyboard*.
   - KWin launches it and talks `zwp_input_method_v1` plus input-panel.
-  - It shows a writing pad, recognises via `studyink-ml`, and commits text to apps that support text-input v1/v2/v3.
+  - It shows a writing pad, recognises via `pennoa-ml`, and commits text to apps that support text-input v1/v2/v3.
   - Only one input method can be active at a time, and KDE's `plasma-keyboard` is the reference implementation.
   - The fallback is copying to the clipboard.
-- **OneNote** (`si-onenote`):
+- **OneNote** (`pn-onenote`):
   - Microsoft Graph with delegated device-code OAuth (`Notes.ReadWrite`, `/consumers` and `/common`).
   - Creates pages as HTML with recognised text, ink rendered to images and the PDF attached.
   - Throttling must be respected: 120 requests/min and 400 requests/hour per app per user, with no `Retry-After` header.
@@ -375,7 +375,7 @@ Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/cla
      - desktop `.one` files;
      - `.onepkg` from OneNote for Windows → Export.
    - The parser is **`onenote_parser`** 2.1 (MPL-2.0). It reads both the OneDrive (FSSHTTPB) and desktop formats, plus ink and math.
-   - **OneNote ink becomes real StudyInk ink**, so it is editable and recognisable. Text, images, tables and attachments are converted too.
+   - **OneNote ink becomes real Pennoa ink**, so it is editable and recognisable. Text, images, tables and attachments are converted too.
    - Re-importing updates pages by their OneNote object IDs instead of duplicating them.
    - Protected and encrypted sections are skipped and reported.
    - The parser is fuzzed, and file names inside the file are sanitised.
@@ -417,7 +417,7 @@ Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/cla
 - **No telemetry.** Crash reports are opt-in and stored locally.
 - **Network calls happen only** for sync, AI requests you trigger, model downloads (sha256-pinned), and OneNote.
 - **Untrusted inputs:**
-  - PDFs are parsed in a constrained worker (hayro with limits; pdfium isolated in `studyink-ml` if needed).
+  - PDFs are parsed in a constrained worker (hayro with limits; pdfium isolated in `pennoa-ml` if needed).
   - All file parsers are fuzzed (`cargo-fuzz`).
 - **Secrets** live only in the keyring. API keys never appear in logs or the repository.
 - **Encryption at rest on remotes** is optional, via `age`.
@@ -434,7 +434,7 @@ Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/cla
 | **iOS (iPhone)** | Companion only | Viewer, flashcards, focus timer, phone scanner |
 
 Design rules from now on, so these ports stay possible:
-- **All OS-specific code lives behind `si-platform` traits:** pen input backend, camera and document scanner, keyring, notifications and DND, share, IME, background tasks, file picker.
+- **All OS-specific code lives behind `pn-platform` traits:** pen input backend, camera and document scanner, keyring, notifications and DND, share, IME, background tasks, file picker.
 - `zbus`, `ashpd` and other Linux-only crates are only used inside the Linux implementation. Nothing in the core crates assumes Linux.
 - **ML uses llama.cpp as the portable runtime.** It runs on Metal (Apple), Vulkan/OpenCL (Android) and CPU. Model packs declare minimum RAM, and the app checks available memory before loading (iPhone has a ceiling of about 6 GB).
 - **Licensing for Apple stores** (ADR-0011, adopted). GPL-3 conflicts with App Store terms. The fix, now in `LICENSE-ADDITIONAL-PERMISSIONS.md`:
@@ -446,6 +446,6 @@ Design rules from now on, so these ports stay possible:
 ## 15. Quality and tooling
 
 - **Tests:** unit and property tests in the core crates; golden-image tests for the renderer; IPC contract tests.
-- **Benchmarks:** `si-bench latency` replays recorded pen traces and measures pen-to-photon latency with presentation feedback. `si-bench recog` runs the accuracy benchmarks.
+- **Benchmarks:** `pn-bench latency` replays recorded pen traces and measures pen-to-photon latency with presentation feedback. `pn-bench recog` runs the accuracy benchmarks.
 - **CI:** `cargo clippy -D warnings`, `cargo test`, `cargo deny check` (licences, advisories, bans), fuzz smoke tests.
 - **Packaging:** Flatpak on Flathub is primary, because the portals fit (camera, print, file chooser). The IME may need a host-installed helper, because KWin launches it; this is checked in Phase 8. Model packs download on first use.

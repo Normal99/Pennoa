@@ -32,7 +32,7 @@ allow = [
     "LGPL-3.0-or-later",
     "GPL-3.0-only",       # Slint's GPLv3 option
     "GPL-3.0-or-later",   # Giac
-    "LicenseRef-StudyInk-additional-permissions",  # our own crates (see LICENSE-ADDITIONAL-PERMISSIONS.md)
+    "LicenseRef-Pennoa-additional-permissions",  # our own crates (see LICENSE-ADDITIONAL-PERMISSIONS.md)
 ]
 # Never add: GPL-2.0-only, GPL-2.0 (deprecated id), AGPL, SSPL, BUSL, non-commercial or
 # "source-available" licences (e.g. Symbolica).

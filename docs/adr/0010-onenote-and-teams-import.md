@@ -12,7 +12,7 @@
 - The OneNote API is also heavily throttled (400 requests/hour).
 
 ## Decision
-- **Files first.** Import OneNote files with `onenote_parser` (MPL-2.0): OneDrive ZIP, `.one`, `.onepkg`. Ink is converted into real StudyInk ink.
+- **Files first.** Import OneNote files with `onenote_parser` (MPL-2.0): OneDrive ZIP, `.one`, `.onepkg`. Ink is converted into real Pennoa ink.
 - **Optional "Sign in with Microsoft":**
   - `Files.Read` to download your own notebooks as files;
   - the OneNote Graph API (`Notes.Read` / `Notes.Read.All`) for shared and class notebooks.

@@ -9,7 +9,7 @@
 
 ## Decision
 - **Paper** is a page property: A5, A4, A3, Letter, Legal, custom W×H (portrait or landscape), or **infinite**. Changing it never modifies the ink.
-- **Export** runs the `si-layout` pagination engine:
+- **Export** runs the `pn-layout` pagination engine:
   1. cluster content into atomic blocks;
   2. sort them into reading order;
   3. fit to the page width (≥ 70% scale by default);

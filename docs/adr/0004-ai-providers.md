@@ -12,7 +12,7 @@
 - A `LlmProvider` trait with these implementations:
   - **Anthropic Messages API** via `reqwest`: default `claude-opus-5-5`, chosen per feature, with streaming, PDF blocks, prompt caching and structured outputs;
   - **OpenRouter** (OpenAI-compatible; DeepSeek V4.1 Flash supports images);
-  - **local models** through `studyink-ml`.
+  - **local models** through `pennoa-ml`.
 - Bring-your-own API keys, stored in the keyring.
 - Subscription login is explicitly not supported, and the UI explains why.
 - Textbook context uses local retrieval with page citations.
