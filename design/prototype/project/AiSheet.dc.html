@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>StudyInk · Ask AI</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Caveat:wght@500;600;700&amp;family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#7FA2FF}a:hover{color:#A9C0FF}
+.si{--bg:#E9EBEF;--surface:#FFFFFF;--surface2:#F3F5F8;--line:#E3E6EC;--text:#14161B;--text2:#454B57;--text3:#5F6672;--accent:#2557D6;--accent-ink:#FFFFFF;--accent-tint:#E8EEFC;--ok:#1C7D45;--ok-tint:#E3F3E9;--float:rgba(255,255,255,.84);--float-edge:rgba(255,255,255,.95);--float-ring:rgba(20,24,32,.08);--shadow:0 10px 30px rgba(20,24,32,.14),0 2px 6px rgba(20,24,32,.06);--paper:#FFFFFF;--rule:#E4E9F2;--ink:#1D2B5C;--scrim:rgba(20,24,32,.10);font-family:Inter,system-ui,sans-serif;color:var(--text)}
+.si.dark{--bg:#0B0D10;--surface:#181B21;--surface2:#21252D;--line:#2C313B;--text:#F1F3F6;--text2:#C3C9D3;--text3:#99A1AE;--accent:#7FA2FF;--accent-ink:#0B1020;--accent-tint:#1C2740;--ok:#5BD08E;--ok-tint:#12301F;--float:rgba(30,33,40,.86);--float-edge:rgba(255,255,255,.08);--float-ring:rgba(0,0,0,.45);--shadow:0 16px 40px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.3);--paper:#1A1D23;--rule:#262B33;--ink:#C9D6FF;--scrim:rgba(0,0,0,.35)}
+.calm{background:var(--float);backdrop-filter:blur(20px) saturate(1.15);-webkit-backdrop-filter:blur(20px) saturate(1.15);box-shadow:inset 0 1px 0 var(--float-edge),0 0 0 1px var(--float-ring),var(--shadow)}
+.press{transition:transform 460ms cubic-bezier(.34,1.56,.64,1),background-color 160ms}
+.press:active{transform:scale(.94);transition-duration:90ms}
+.hand{font-family:Caveat,cursive;color:var(--ink);line-height:1}
+.math{font-family:"STIX Two Text",Georgia,serif}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;animation:blink 1.2s infinite ease-in-out}
+.dot.d2{animation-delay:.2s}.dot.d3{animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1.1)}}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</helmet>
+<div class="si {{themeClass}}" style="width: 1280px; height: 800px; position: relative; overflow: hidden; background: var(--bg)">
+
+  <div style="position: absolute; top: 84px; left: 72px; width: 700px; height: 900px; background-color: var(--paper); border-radius: 6px; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 39px, var(--rule) 39px, var(--rule) 40px); background-position: 0 24px">
+    <div class="hand" style="position: absolute; left: 56px; top: 34px; font-size: 42px; font-weight: 700">Kinematics — constant acceleration</div>
+    <div class="hand" style="position: absolute; left: 64px; top: 112px; font-size: 36px">v = u + a t</div>
+    <div class="hand" style="position: absolute; left: 64px; top: 160px; font-size: 36px">s = u t + ½ a t²</div>
+    <div class="hand" style="position: absolute; left: 64px; top: 208px; font-size: 36px">v² = u² + 2 a s</div>
+    <div class="hand" style="position: absolute; left: 56px; top: 272px; font-size: 30px">Ex. car: u = 12 m/s, a = 3 m/s², t = 5 s → v? s?</div>
+    <div style="position: absolute; left: 44px; top: 340px; width: 270px; height: 62px; border-radius: 24px; border: 2px dashed var(--accent); background: var(--accent-tint)"></div>
+    <div class="hand" style="position: absolute; left: 64px; top: 352px; font-size: 38px">v = 12 + 3 · 5</div>
+    <div class="hand" style="position: absolute; left: 64px; top: 432px; font-size: 38px">s = 12 · 5 + ½ · 3 · 5²</div>
+  </div>
+  <div style="position: absolute; inset: 0; background: var(--scrim)"></div>
+
+  <div style="position: absolute; top: 16px; left: 0; width: 840px; display: flex; justify-content: center">
+    <div class="calm" style="height: 40px; border-radius: 999px; display: flex; align-items: center; gap: 10px; padding: 0 16px">
+      <sc-if value="{{streaming}}" hint-placeholder-val="{{ true }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"></path></svg>
+        <span style="font-size: 13px; font-weight: 600">Claude is writing</span>
+        <span style="display: flex; gap: 4px"><span class="dot"></span><span class="dot d2"></span><span class="dot d3"></span></span>
+      </sc-if>
+      <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--ok)"></span>
+        <span style="font-size: 13px; font-weight: 600">Answer ready</span>
+        <span style="font-size: 13px; color: var(--text3)">1,240 tokens · cached textbook</span>
+      </sc-if>
+    </div>
+  </div>
+
+  <aside aria-label="Ask AI" style="position: absolute; top: 16px; right: 16px; bottom: 16px; width: 448px; background: var(--surface); border-radius: 28px; box-shadow: 0 0 0 1px var(--line), var(--shadow); display: flex; flex-direction: column; overflow: hidden">
+    <div style="padding: 18px 18px 12px 22px; display: flex; align-items: center; gap: 10px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"></path><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z"></path></svg>
+      <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.02em">Ask AI</h2>
+      <button class="press" style="margin-left: auto; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--surface2); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; color: var(--text2)">
+        Claude Opus 5.5
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+      <a href="Editor.dc.html" class="press" aria-label="Close" style="width: 40px; height: 40px; border-radius: 50%; background: var(--surface2); color: var(--text); display: flex; align-items: center; justify-content: center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </a>
+    </div>
+
+    <div style="padding: 0 22px 12px; display: flex; flex-wrap: wrap; gap: 6px">
+      <span style="font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px; background: var(--accent-tint); color: var(--accent)">Selection · v = 12 + 3 · 5</span>
+      <span style="font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px; background: var(--surface2); color: var(--text2)">This page</span>
+      <span style="font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px; background: var(--surface2); color: var(--text2)">Physics textbook · ch. 2</span>
+    </div>
+
+    <div style="flex: 1; overflow: hidden; padding: 4px 22px 0; display: flex; flex-direction: column; gap: 14px">
+      <div style="align-self: flex-end; max-width: 320px; background: var(--accent); color: var(--accent-ink); padding: 10px 14px; border-radius: 20px 20px 6px 20px; font-size: 14px; line-height: 20px">Explain this step by step and check my value for s.</div>
+
+      <div style="font-size: 14px; line-height: 22px; color: var(--text2)">
+        <p style="margin: 0 0 8px; color: var(--text)">You used <span class="math"><i>v</i> = <i>u</i> + <i>at</i></span> — the right choice, because you know <i>u</i>, <i>a</i> and <i>t</i> and want <i>v</i>.</p>
+        <ol style="margin: 0 0 10px; padding-left: 20px">
+          <li>Substitute: <span class="math"><i>v</i> = 12 + 3 · 5</span></li>
+          <li>Multiply first: <span class="math">3 · 5 = 15</span></li>
+          <li>Add: <span class="math"><i>v</i> = 27 m/s</span></li>
+        </ol>
+        <p style="margin: 0 0 10px">For displacement, <span class="math"><i>s</i> = <i>ut</i> + ½<i>at</i>² = 60 + 37.5</span>, so your <b style="color: var(--text)">97.5 m</b> is correct. On your graph it is the shaded area under the line.</p>
+        <div style="display: flex; align-items: center; gap: 8px; background: var(--ok-tint); color: var(--ok); padding: 8px 12px; border-radius: 14px; font-size: 13px; font-weight: 600">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+          Both results checked by the calculator engine
+        </div>
+        <div style="display: flex; gap: 6px; margin-top: 10px">
+          <span style="font-size: 12px; color: var(--text3); padding: 4px 8px; border-radius: 8px; background: var(--surface2)">Textbook p. 37 · Eq. 2.7</span>
+          <span style="font-size: 12px; color: var(--text3); padding: 4px 8px; border-radius: 8px; background: var(--surface2)">Your notes p. 9</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 10px 22px 0; display: flex; gap: 6px; flex-wrap: wrap">
+      <sc-for list="{{quick}}" as="q" hint-placeholder-count="4">
+        <button class="press" onClick="{{q.pick}}" style="height: 34px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 600; background: {{q.bg}}; color: {{q.fg}}; box-shadow: inset 0 0 0 1px var(--line)">{{q.label}}</button>
+      </sc-for>
+    </div>
+
+    <div style="padding: 12px 14px 14px">
+      <div style="display: flex; align-items: center; gap: 8px; background: var(--surface2); border-radius: 22px; padding: 6px 6px 6px 16px">
+        <label for="ask" style="position: absolute; left: -9999px">Ask a follow-up</label>
+        <input id="ask" placeholder="Ask a follow-up, or write it by hand…" style="flex: 1; border: 0; background: transparent; font: inherit; font-size: 14px; color: var(--text); min-width: 0; height: 36px">
+        <button class="press" aria-label="Write question by hand" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text2)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+        </button>
+        <button class="press" onClick="{{toggleStream}}" aria-label="{{sendLabel}}" style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center">
+          <sc-if value="{{streaming}}" hint-placeholder-val="{{ true }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>
+          </sc-if>
+          <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+          </sc-if>
+        </button>
+      </div>
+    </div>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":true},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { streaming: true, quick: '' }; }
+  renderVals() {
+    const st = this.state;
+    const quick = ['Summarize page', 'Make 5 flashcards', 'Quiz me', 'Explain simpler'].map(label => {
+      const on = st.quick === label;
+      return { label, bg: on ? 'var(--accent-tint)' : 'transparent', fg: on ? 'var(--accent)' : 'var(--text2)', pick: () => this.setState({ quick: label, streaming: true }) };
+    });
+    const dark = this.props.dark ?? true;
+    return {
+      themeClass: dark ? 'dark' : '',
+      streaming: st.streaming,
+      done: !st.streaming,
+      sendLabel: st.streaming ? 'Stop' : 'Send',
+      toggleStream: () => this.setState({ streaming: !st.streaming }),
+      quick
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>StudyInk · Library</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Caveat:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2557D6}a:hover{color:#1A43AA}
+.si{--bg:#F3F4F7;--surface:#FFFFFF;--surface2:#F7F8FA;--line:#E3E6EC;--text:#14161B;--text2:#454B57;--text3:#5F6672;--accent:#2557D6;--accent-ink:#FFFFFF;--accent-tint:#E8EEFC;--ok:#1C7D45;--float:rgba(255,255,255,.84);--float-edge:rgba(255,255,255,.95);--float-ring:rgba(20,24,32,.08);--shadow:0 10px 30px rgba(20,24,32,.12),0 2px 6px rgba(20,24,32,.06);--card-shadow:0 1px 2px rgba(20,24,32,.05);--ink:#1D2B5C;font-family:Inter,system-ui,sans-serif;color:var(--text)}
+.si.dark{--bg:#0F1115;--surface:#181B21;--surface2:#1F232A;--line:#2A2F38;--text:#F1F3F6;--text2:#C3C9D3;--text3:#99A1AE;--accent:#7FA2FF;--accent-ink:#0B1020;--accent-tint:#1C2740;--ok:#5BD08E;--float:rgba(30,33,40,.86);--float-edge:rgba(255,255,255,.08);--float-ring:rgba(0,0,0,.45);--shadow:0 12px 32px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);--card-shadow:none;--ink:#C9D6FF}
+.calm{background:var(--float);backdrop-filter:blur(20px) saturate(1.15);-webkit-backdrop-filter:blur(20px) saturate(1.15);box-shadow:inset 0 1px 0 var(--float-edge),0 0 0 1px var(--float-ring),var(--shadow)}
+.press{transition:transform 460ms cubic-bezier(.34,1.56,.64,1),background-color 160ms,width 520ms cubic-bezier(.34,1.4,.64,1),height 520ms cubic-bezier(.34,1.4,.64,1)}
+.press:active{transform:scale(.95);transition-duration:90ms}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</helmet>
+<div class="si {{themeClass}}" style="width: 1280px; height: 800px; position: relative; overflow: hidden; background: var(--bg); box-sizing: border-box">
+
+  <div style="position: absolute; top: 20px; left: 40px; right: 40px; height: 48px; display: flex; align-items: flex-start; justify-content: space-between; z-index: 5">
+    <div style="display: flex; align-items: center; gap: 10px; width: 260px; height: 48px">
+      <div style="width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+      </div>
+      <span style="font-weight: 700; font-size: 17px; letter-spacing: -0.01em">StudyInk</span>
+    </div>
+
+    <button class="calm press" onClick="{{toggleIsland}}" aria-expanded="{{islandOpenStr}}" aria-label="Status island" style="margin-top: 4px; border-radius: {{islandR}}; display: flex; align-items: center; gap: 10px; padding: 0 16px; height: {{islandH}}; width: {{islandW}}; overflow: hidden; justify-content: flex-start">
+      <sc-if value="{{islandClosed}}" hint-placeholder-val="{{ true }}">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none"></span>
+        <span style="font-size: 13px; font-weight: 600; white-space: nowrap">Synced</span>
+        <span style="font-size: 13px; color: var(--text3); white-space: nowrap">Google Drive · 2 min ago</span>
+      </sc-if>
+      <sc-if value="{{islandOpen}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 4px 4px; text-align: left">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 1 0 6 17.7"></path><path d="m9 15 2 2 4-4"></path></svg>
+            <span style="font-size: 14px; font-weight: 600">All notebooks synced</span>
+            <span style="font-size: 12px; color: var(--text3); margin-left: auto">Google Drive · NAS backup</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"></path><path d="M9 20h6"></path><path d="M12 4v16"></path></svg>
+            <span style="font-size: 13px">Recognizing Physics · p. 12</span>
+            <span style="font-size: 12px; color: var(--text3); margin-left: auto">3 of 5 regions</span>
+          </div>
+          <div style="height: 6px; border-radius: 999px; background: var(--line); overflow: hidden"><div style="width: 60%; height: 100%; background: var(--accent); border-radius: 999px"></div></div>
+        </div>
+      </sc-if>
+    </button>
+
+    <div style="display: flex; align-items: center; gap: 8px; width: 260px; height: 48px; justify-content: flex-end">
+      <button class="press" aria-label="Search notes" style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: var(--card-shadow)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      </button>
+      <a href="Settings.dc.html" class="press" aria-label="Settings" style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--text); box-shadow: var(--card-shadow)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10"></path><path d="M18 6h2"></path><path d="M4 12h4"></path><path d="M12 12h8"></path><path d="M4 18h12"></path><circle cx="16" cy="6" r="2"></circle><circle cx="10" cy="12" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg>
+      </a>
+    </div>
+  </div>
+
+  <div style="position: absolute; top: 92px; left: 48px; right: 48px; display: flex; align-items: flex-end; justify-content: space-between">
+    <div>
+      <h1 style="margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05">Library</h1>
+      <p style="margin: 6px 0 0; font-size: 15px; color: var(--text3)">Tuesday, 10 November · 7 subjects · 1,284 pages</p>
+    </div>
+  </div>
+
+  <div style="position: absolute; top: 186px; left: 48px; right: 48px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+    <a href="Learn.dc.html" class="press" style="text-decoration: none; color: var(--text); background: var(--surface); border-radius: 24px; padding: 20px 22px; height: 148px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--card-shadow)">
+      <div style="display: flex; align-items: center; gap: 8px; color: var(--text3); font-size: 13px; font-weight: 600">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M10 2h4"></path></svg>
+        Focus today
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 34px; font-weight: 800; letter-spacing: -0.02em">1h 40m</span><span style="font-size: 13px; color: var(--text3)">of 3h goal</span></div>
+      <div style="display: flex; gap: 4px">
+        <div style="flex: 1; height: 6px; border-radius: 999px; background: var(--accent)"></div>
+        <div style="flex: 1; height: 6px; border-radius: 999px; background: var(--accent)"></div>
+        <div style="flex: 1; height: 6px; border-radius: 999px; background: var(--accent); opacity: .35"></div>
+        <div style="flex: 1; height: 6px; border-radius: 999px; background: var(--line)"></div>
+        <div style="flex: 1; height: 6px; border-radius: 999px; background: var(--line)"></div>
+      </div>
+    </a>
+    <a href="Learn.dc.html" class="press" style="text-decoration: none; color: var(--text); background: var(--surface); border-radius: 24px; padding: 20px 22px; height: 148px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--card-shadow)">
+      <div style="display: flex; align-items: center; gap: 8px; color: var(--text3); font-size: 13px; font-weight: 600">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="16" height="14" rx="2"></rect><path d="M6 2h14a2 2 0 0 1 2 2v12"></path></svg>
+        Flashcards due
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 34px; font-weight: 800; letter-spacing: -0.02em">24</span><span style="font-size: 13px; color: var(--text3)">Physics 14 · Chemistry 10</span></div>
+      <span style="align-self: flex-start; font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-tint); padding: 6px 12px; border-radius: 999px">Review · about 8 min</span>
+    </a>
+    <a href="Learn.dc.html" class="press" style="text-decoration: none; color: var(--text); background: var(--surface); border-radius: 24px; padding: 20px 22px; height: 148px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--card-shadow)">
+      <div style="display: flex; align-items: center; gap: 8px; color: var(--text3); font-size: 13px; font-weight: 600">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="18" r="2"></circle><circle cx="19" cy="6" r="2"></circle><path d="M7 18h4a4 4 0 0 0 4-4v-4a4 4 0 0 1 4-4"></path></svg>
+        Next on your path
+      </div>
+      <div>
+        <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em">Projectile motion</div>
+        <div style="font-size: 13px; color: var(--text3); margin-top: 4px">Physics · Kinematics · step 4 of 9</div>
+      </div>
+      <div style="height: 6px; border-radius: 999px; background: var(--line); overflow: hidden"><div style="width: 38%; height: 100%; background: #E07A12; border-radius: 999px"></div></div>
+    </a>
+  </div>
+
+  <div style="position: absolute; top: 362px; left: 48px; right: 48px; display: flex; align-items: center; justify-content: space-between">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em">Subjects</h2>
+    <div style="display: flex; gap: 8px">
+      <button class="press" style="height: 36px; padding: 0 14px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 13px; font-weight: 600">Recent</button>
+      <button class="press" style="height: 36px; padding: 0 14px; border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text2)">A–Z</button>
+      <button class="press" style="height: 36px; padding: 0 14px; border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text2)">Exams soon</button>
+    </div>
+  </div>
+
+  <div style="position: absolute; top: 412px; left: 48px; right: 48px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+    <sc-for list="{{subjects}}" as="s" hint-placeholder-count="8">
+      <a href="Editor.dc.html" class="press" style="text-decoration: none; color: var(--text); background: var(--surface); border-radius: 24px; padding: 18px; height: 124px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--card-shadow)">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <div style="width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; background: {{s.tint}}; color: {{s.color}}">{{s.glyph}}</div>
+          <span style="font-size: 12px; color: var(--text3)">{{s.edited}}</span>
+        </div>
+        <div>
+          <div style="font-size: 16px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.name}}</div>
+          <div style="font-size: 13px; color: var(--text3); margin-top: 2px">{{s.meta}}</div>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+
+  <div style="position: absolute; bottom: 24px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 12px">
+    <nav class="calm" aria-label="Main" style="border-radius: 999px; padding: 6px; display: flex; gap: 4px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button class="press" onClick="{{t.pick}}" aria-current="{{t.current}}" style="height: 48px; padding: 0 20px; border-radius: 999px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</button>
+      </sc-for>
+    </nav>
+    <a href="Editor.dc.html" class="press" aria-label="New note" style="width: 60px; height: 60px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { island: false, tab: 'Library' }; }
+  renderVals() {
+    const open = this.state.island;
+    const subjects = [
+      { name: 'Mathematics', glyph: '∑', color: '#2F64E0', meta: '5 notebooks · 312 pages', edited: '2h ago' },
+      { name: 'Physics', glyph: 'Φ', color: '#C2620A', meta: '3 notebooks · 204 pages', edited: '10 min ago' },
+      { name: 'Chemistry', glyph: 'Cl', color: '#0F8F86', meta: '2 notebooks · 141 pages', edited: 'Yesterday' },
+      { name: 'Biology', glyph: 'Bi', color: '#2E8B3E', meta: '2 notebooks · 120 pages', edited: 'Mon' },
+      { name: 'History', glyph: 'H', color: '#7C4DDB', meta: '2 notebooks · 166 pages', edited: 'Sun' },
+      { name: 'Norsk', glyph: 'Æ', color: '#D63B73', meta: '3 notebooks · 198 pages', edited: 'Fri' },
+      { name: 'English', glyph: 'En', color: '#4B57D6', meta: '2 notebooks · 143 pages', edited: 'Thu' },
+      { name: 'Scans & handouts', glyph: '⎙', color: '#5F6672', meta: '38 documents', edited: 'Today' }
+    ].map(s => ({ ...s, tint: 'color-mix(in srgb, ' + s.color + ' 15%, transparent)' }));
+    const tabs = ['Library', 'Learn', 'Scan', 'Search'].map(label => {
+      const on = this.state.tab === label;
+      return { label, current: on ? 'page' : 'false', bg: on ? 'var(--text)' : 'transparent', fg: on ? 'var(--bg)' : 'var(--text2)', pick: () => this.setState({ tab: label }) };
+    });
+    return {
+      themeClass: this.props.dark ? 'dark' : '',
+      islandOpen: open,
+      islandClosed: !open,
+      islandOpenStr: open ? 'true' : 'false',
+      islandW: open ? '420px' : '300px',
+      islandH: open ? '112px' : '40px',
+      islandR: open ? '28px' : '999px',
+      toggleIsland: () => this.setState({ island: !open }),
+      subjects,
+      tabs
+    };
+  }
+}
+</script>
+</body>
+</html>

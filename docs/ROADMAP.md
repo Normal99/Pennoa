@@ -1,0 +1,23 @@
+# Roadmap
+
+Each phase ends with measurable exit criteria. Phases 5–8 can overlap once Phase 4 is done.
+
+| Phase | Delivers | Exit criteria |
+|---|---|---|
+| **0 · Spikes** | (1) winit 0.31 + Slint custom platform + wgpu wet-ink prototype on a Yoga under Plasma Wayland. (2) vello_gpu tile renderer. (3) **Recognition benchmark**: every candidate model (§4 of RESEARCH) on 20–30 pages of the user's real notes, covering **Norwegian and English** text and math/physics. (4) Giac `cxx` shim "hello solve" | Pressure and tilt received; pen-to-pixel ≤ 20 ms p95 measured with presentation feedback; benchmark report with CER, expression accuracy and latency per model; UI architecture confirmed or a fallback chosen (ADR-0001 updated) |
+| **1 · Notebook core** | Workspace crates; Fluent i18n with English + Norwegian (nb, nn); library/subject/notebook/page model; pen, highlighter, eraser, lasso (move, copy, delete), undo/redo; A4 and infinite pages; Automerge file format; FTS search over typed text; Home, Editor and Settings screens from the prototype | 500-page notebook opens < 300 ms; no dropped frames while inking; fuzzed page parser; crash-free 2-hour writing session |
+| **2 · Sync & backup** | `Remote` trait over OpenDAL (local folder, WebDAV, Google Drive, OneDrive, SFTP, S3); merge-based sync; snapshots; age E2E; keyring | Concurrent edits on two devices merge without loss (property test); restore of any snapshot; zero plaintext on remote with E2E on |
+| **3 · Recognition** | `studyink-ml` host; Tier A model + on-device fine-tune; Tier B (benchmark winner) in the background; math → LaTeX; text view with corrections; correction store; model packs with licence display | Matches or beats the Phase 0 benchmark winner on the user's held-out pages; Tier A < 150 ms; personalisation measurably lowers CER after 500 corrections |
+| **4 · AI + export** | Providers (Anthropic, OpenRouter, local); selection capsule; Ask-AI sheet with streaming; textbook import + RAG with page citations; PDF export (krilla pages, Typst summaries); print | Answers cite textbook pages; prompt-injection test suite passes; exported PDFs validate (veraPDF) and print correctly on A4 |
+| **5 · Autocalculate** | LaTeX parser → AST; fend numeric/units; Giac symbolic; verified badge; "explain steps" | 100% agreement with a reference CAS on a 1,000-expression test set; never shows "verified" for unchecked results |
+| **6 · Scanner** | Camera portal capture, auto-capture, perspective, UVDoc dewarp, enhancement modes, OCR, page tray, PDF assembly; KDE Connect phone inbox | Scans of 10 test documents and 2 book spreads meet the quality bar (OCR CER on printed text < 2%) |
+| **7 · Learning** | Learning paths from textbook + notes, quizzes (structured outputs), flashcards with FSRS, focus timer in the island, statistics widgets | A path is generated for a real textbook chapter; review scheduling matches fsrs reference tests |
+| **8 · Integrations** | `studyink-ime` Plasma virtual keyboard; OneNote upload; KDE Connect polish (pings, clipboard, send PDF) | Handwriting typed into Firefox, Kate and LibreOffice; OneNote page created on a personal account within throttling limits |
+| **8b · Languages** | UI and recognition beyond nb/nn/en in waves: (1) other Latin-script European languages, (2) Cyrillic and Greek, (3) Arabic and Hebrew with RTL layout, (4) Devanagari and other Indic scripts, (5) CJK | Each language ships only when its evaluation CER meets target and its UI translation is complete |
+| **9 · Windows** | WM_POINTER pen via winit, Windows keyring store, OpenDAL SFTP replacement, MSIX/winget packaging | Phase 1 exit criteria hold on Windows 11 |
+
+## Open questions
+1. **Project name:** "StudyInk" is a placeholder; a name search is needed before the first release.
+2. **Hardware for Tier B personalisation:** does the target laptop have a discrete GPU, or only an iGPU?
+3. **Google Drive OAuth client:** the project needs its own Google Cloud OAuth client, which requires Google verification for the Drive scope.
+4. **IME under Flatpak:** can KWin launch a Flatpak-ed input method, or is a host package needed?

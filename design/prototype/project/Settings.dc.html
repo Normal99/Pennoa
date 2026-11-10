@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>StudyInk · Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2557D6}a:hover{color:#1A43AA}
+.si{--bg:#F3F4F7;--surface:#FFFFFF;--surface2:#F3F5F8;--line:#E3E6EC;--text:#14161B;--text2:#454B57;--text3:#5F6672;--accent:#2557D6;--accent-ink:#FFFFFF;--accent-tint:#E8EEFC;--ok:#1C7D45;--ok-tint:#E3F3E9;--warn:#9A4A00;--warn-tint:#FDF0E1;--shadow:0 10px 30px rgba(20,24,32,.12),0 2px 6px rgba(20,24,32,.06);--card-shadow:0 1px 2px rgba(20,24,32,.05);font-family:Inter,system-ui,sans-serif;color:var(--text)}
+.si.dark{--bg:#0F1115;--surface:#181B21;--surface2:#21252D;--line:#2C313B;--text:#F1F3F6;--text2:#C3C9D3;--text3:#99A1AE;--accent:#7FA2FF;--accent-ink:#0B1020;--accent-tint:#1C2740;--ok:#5BD08E;--ok-tint:#12301F;--warn:#F2A35A;--warn-tint:#33240F;--shadow:0 12px 32px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);--card-shadow:none}
+.press{transition:transform 460ms cubic-bezier(.34,1.56,.64,1),background-color 160ms}
+.press:active{transform:scale(.96);transition-duration:90ms}
+.swap{animation:swap 420ms cubic-bezier(.34,1.4,.64,1) both}
+@keyframes swap{0%{transform:translateX(16px);opacity:0}100%{transform:none;opacity:1}}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</helmet>
+<div class="si {{themeClass}}" style="width: 1280px; height: 800px; position: relative; overflow: hidden; background: var(--bg); display: flex">
+
+  <nav aria-label="Settings sections" style="width: 320px; flex: none; padding: 24px 16px 24px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px">
+      <a href="Main.dc.html" class="press" aria-label="Back to library" style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      </a>
+      <h1 style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em">Settings</h1>
+    </div>
+    <sc-for list="{{sections}}" as="s" hint-placeholder-count="6">
+      <button class="press" onClick="{{s.pick}}" aria-current="{{s.current}}" style="height: 52px; border-radius: 18px; padding: 0 14px; display: flex; align-items: center; gap: 12px; text-align: left; background: {{s.bg}}; box-shadow: {{s.shadow}}">
+        <span style="width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: {{s.tint}}; color: {{s.color}}; flex: none">{{s.glyph}}</span>
+        <span style="flex: 1">
+          <span style="display: block; font-size: 14px; font-weight: 600">{{s.label}}</span>
+          <span style="display: block; font-size: 12px; color: var(--text3)">{{s.sub}}</span>
+        </span>
+      </button>
+    </sc-for>
+    <div style="margin-top: auto; font-size: 12px; color: var(--text3); padding: 0 14px; line-height: 18px">StudyInk 0.1 · free software under GPL-3.0<br>Your notes stay in your own storage.</div>
+  </nav>
+
+  <main class="swap" style="flex: 1; padding: 24px 32px 24px 8px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; gap: 16px">
+    <div style="padding-top: 6px">
+      <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em">{{panel.title}}</h2>
+      <p style="margin: 4px 0 0; font-size: 14px; color: var(--text3)">{{panel.lead}}</p>
+    </div>
+
+    <sc-if value="{{panel.hasNotice}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; gap: 12px; align-items: flex-start; background: var(--warn-tint); color: var(--text); border-radius: 18px; padding: 14px 16px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+        <span style="font-size: 13px; line-height: 19px">{{panel.notice}}</span>
+      </div>
+    </sc-if>
+
+    <sc-for list="{{panel.groups}}" as="g" hint-placeholder-count="2">
+      <section style="background: var(--surface); border-radius: 24px; box-shadow: var(--card-shadow); overflow: hidden">
+        <div style="padding: 14px 18px 4px; font-size: 12px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em">{{g.name}}</div>
+        <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-top: {{r.border}}">
+            <span style="flex: 1; min-width: 0">
+              <span style="display: block; font-size: 15px; font-weight: 600">{{r.title}}</span>
+              <span style="display: block; font-size: 13px; color: var(--text3); margin-top: 2px">{{r.sub}}</span>
+            </span>
+            <sc-if value="{{r.isBadge}}" hint-placeholder-val="{{ false }}">
+              <span style="font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; background: {{r.badgeBg}}; color: {{r.badgeFg}}; white-space: nowrap">{{r.value}}</span>
+            </sc-if>
+            <sc-if value="{{r.isButton}}" hint-placeholder-val="{{ false }}">
+              <button class="press" style="height: 36px; padding: 0 14px; border-radius: 999px; background: var(--surface2); font-size: 13px; font-weight: 600; white-space: nowrap">{{r.value}}</button>
+            </sc-if>
+            <sc-if value="{{r.isToggle}}" hint-placeholder-val="{{ false }}">
+              <button role="switch" aria-checked="{{r.checked}}" aria-label="{{r.title}}" onClick="{{r.flip}}" style="width: 52px; height: 32px; border-radius: 999px; background: {{r.track}}; position: relative; transition: background-color 200ms; flex: none">
+                <span style="position: absolute; top: 3px; left: {{r.knob}}; width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left 420ms cubic-bezier(.34,1.56,.64,1); display: block"></span>
+              </button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </section>
+    </sc-for>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sec: 'ai', on: { e2e: true, snap: true, wifi: true, cloudHard: true, localFirst: true, trainMe: true, blur: true, motion: true, palm: true, predict: true, dnd: true, inbox: true, clip: false } };
+  }
+  renderVals() {
+    const st = this.state;
+    const T = (id, title, sub) => ({ kind: 'toggle', id, title, sub });
+    const B = (title, sub, value, tone) => ({ kind: 'badge', title, sub, value, tone });
+    const Btn = (title, sub, value) => ({ kind: 'button', title, sub, value });
+    const panels = {
+      sync: { title: 'Sync & backup', lead: 'Bring your own storage. Each page syncs on its own, so edits from two devices merge instead of conflicting.', groups: [
+        { name: 'Storage', rows: [B('Google Drive', 'StudyInk folder · 2.1 GB', 'Connected', 'ok'), B('Home NAS · SFTP', 'Nightly snapshot, keeps 30 versions', 'Backup', 'accent'), Btn('Add storage', 'OneDrive, WebDAV / Nextcloud, S3, local folder (Syncthing)', 'Add')] },
+        { name: 'Safety', rows: [T('e2e', 'End-to-end encryption', 'Files are encrypted before upload; only your devices hold the key'), T('snap', 'Versioned snapshots', 'Restore any page as it was'), T('wifi', 'Sync on metered networks', 'Off saves mobile data when tethering')] }
+      ] },
+      ai: { title: 'AI providers', lead: 'Pick who answers. Keys live in the system keyring, never in your notes.', hasNotice: true,
+        notice: 'Claude Pro and Max subscriptions can’t be used by other apps under Anthropic’s terms. Use a Claude API key or OpenRouter — your subscription keeps working in Claude itself.',
+        groups: [
+        { name: 'Providers', rows: [B('Claude (Anthropic API)', 'Default for Ask AI and summaries · Claude Opus 5.5', 'Key saved', 'ok'), B('OpenRouter', 'DeepSeek V4.1 Flash for quick explanations and quizzes', 'Key saved', 'ok'), Btn('Model per feature', 'Ask AI · summaries · quizzes · hard handwriting', 'Choose')] },
+        { name: 'Privacy', rows: [T('localFirst', 'Prefer on-device models', 'Recognition and search run locally; AI is only used when you ask'), T('cloudHard', 'Send hard handwriting to the cloud', 'Only regions the local model is unsure about, and only when online')] }
+      ] },
+      recog: { title: 'Handwriting recognition', lead: 'Three tiers: instant while you write, accurate in the background, and cloud on demand.', groups: [
+        { name: 'Languages', rows: [B('Handwriting languages', 'Norsk (bokmål, nynorsk) and English · more languages and scripts coming', 'Norsk, English', 'accent')] },
+        { name: 'Models', rows: [B('Live recognizer', 'Personalised to your writing from your corrections', 'Active', 'ok'), B('Background text model', 'Open-weight vision model, runs on this laptop', 'Installed', 'accent'), B('Math → LaTeX model', 'Open-weight, trained for handwritten formulas', 'Installed', 'accent'), Btn('Benchmark on my notes', 'Compares every installed model on 30 of your pages', 'Run')] },
+        { name: 'Learning', rows: [T('trainMe', 'Learn from my corrections', 'Your corrections stay on your devices and in your storage')] }
+      ] },
+      pen: { title: 'Pen & ink', lead: 'Tuned for low latency on the Yoga’s pen.', groups: [
+        { name: 'Input', rows: [T('palm', 'Palm rejection', 'Ignore touch while the pen is near the screen'), T('predict', 'Stroke prediction', 'Draws a few milliseconds ahead to hide latency'), Btn('Pressure curve', 'Light hand · default · firm', 'Adjust')] }
+      ] },
+      phone: { title: 'Phone · KDE Connect', lead: 'Use your phone’s camera, notifications and clipboard with StudyInk.', groups: [
+        { name: 'OnePlus 16', rows: [B('Connection', 'Paired over Wi-Fi', 'Connected', 'ok'), T('inbox', 'Phone photos → scan inbox', 'Share a photo to your PC and it becomes a cleaned-up scan'), T('dnd', 'Focus pings', 'Your phone gets a ping when a focus session starts and ends'), T('clip', 'Share clipboard', 'Copy on the phone, paste into a note')] }
+      ] },
+      look: { title: 'Appearance', lead: 'Calm Aero: solid surfaces, light frosting only on floating tools.', groups: [
+        { name: 'Language', rows: [B('App language', 'English · Norsk bokmål · Norsk nynorsk', 'English', 'accent')] },
+        { name: 'Theme', rows: [B('Theme', 'Follows Plasma’s light / dark setting', 'System', 'accent'), T('blur', 'Frosted floating tools', 'Turn off for maximum battery and performance'), T('motion', 'Elastic motion', 'Springy feedback on taps and the island')] }
+      ] }
+    };
+    const meta = [
+      ['sync', 'Sync & backup', 'Google Drive · NAS', '⇅', '#1C7D45'],
+      ['ai', 'AI providers', 'Claude · OpenRouter', '✦', '#2557D6'],
+      ['recog', 'Handwriting', 'Models & learning', 'Aa', '#7C4DDB'],
+      ['pen', 'Pen & ink', 'Pressure, palm rejection', '✎', '#C2620A'],
+      ['phone', 'Phone', 'KDE Connect', '▯', '#0F8F86'],
+      ['look', 'Appearance', 'Theme & motion', '◐', '#D63B73']
+    ];
+    const sections = meta.map(([id, label, sub, glyph, color]) => {
+      const on = st.sec === id;
+      return { label, sub, glyph, color, tint: 'color-mix(in srgb, ' + color + ' 15%, transparent)', current: on ? 'page' : 'false', bg: on ? 'var(--surface)' : 'transparent', shadow: on ? 'var(--shadow)' : 'none', pick: () => this.setState({ sec: id }) };
+    });
+    const tones = { ok: ['var(--ok-tint)', 'var(--ok)'], accent: ['var(--accent-tint)', 'var(--accent)'] };
+    const p = panels[st.sec];
+    const panel = {
+      title: p.title, lead: p.lead, hasNotice: !!p.hasNotice, notice: p.notice || '',
+      groups: p.groups.map(g => ({
+        name: g.name,
+        rows: g.rows.map((r, i) => {
+          const on = r.kind === 'toggle' ? !!st.on[r.id] : false;
+          const tone = tones[r.tone] || tones.accent;
+          return {
+            ...r,
+            border: i === 0 ? 'none' : '1px solid var(--line)',
+            isBadge: r.kind === 'badge', isButton: r.kind === 'button', isToggle: r.kind === 'toggle',
+            badgeBg: tone[0], badgeFg: tone[1],
+            checked: on ? 'true' : 'false',
+            track: on ? 'var(--accent)' : 'var(--line)',
+            knob: on ? '23px' : '3px',
+            flip: () => this.setState({ on: { ...st.on, [r.id]: !on } })
+          };
+        })
+      }))
+    };
+    return { themeClass: this.props.dark ? 'dark' : '', sections, panel };
+  }
+}
+</script>
+</body>
+</html>

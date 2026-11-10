@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>StudyInk · Notebook editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Caveat:wght@500;600;700&amp;family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2557D6}a:hover{color:#1A43AA}
+.si{--bg:#E9EBEF;--surface:#FFFFFF;--surface2:#F7F8FA;--line:#E3E6EC;--text:#14161B;--text2:#454B57;--text3:#5F6672;--accent:#2557D6;--accent-ink:#FFFFFF;--accent-tint:#E8EEFC;--ok:#1C7D45;--ok-tint:#E3F3E9;--float:rgba(255,255,255,.84);--float-edge:rgba(255,255,255,.95);--float-ring:rgba(20,24,32,.08);--shadow:0 10px 30px rgba(20,24,32,.14),0 2px 6px rgba(20,24,32,.06);--paper:#FFFFFF;--rule:#E4E9F2;--ink:#1D2B5C;--hl:rgba(255,214,10,.45);font-family:Inter,system-ui,sans-serif;color:var(--text)}
+.si.dark{--bg:#0B0D10;--surface:#181B21;--surface2:#1F232A;--line:#2A2F38;--text:#F1F3F6;--text2:#C3C9D3;--text3:#99A1AE;--accent:#7FA2FF;--accent-ink:#0B1020;--accent-tint:#1C2740;--ok:#5BD08E;--ok-tint:#12301F;--float:rgba(30,33,40,.86);--float-edge:rgba(255,255,255,.08);--float-ring:rgba(0,0,0,.45);--shadow:0 12px 32px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);--paper:#1A1D23;--rule:#272C35;--ink:#C9D6FF;--hl:rgba(255,214,10,.28)}
+.calm{background:var(--float);backdrop-filter:blur(20px) saturate(1.15);-webkit-backdrop-filter:blur(20px) saturate(1.15);box-shadow:inset 0 1px 0 var(--float-edge),0 0 0 1px var(--float-ring),var(--shadow)}
+.press{transition:transform 460ms cubic-bezier(.34,1.56,.64,1),background-color 160ms,opacity 200ms}
+.press:active{transform:scale(.92);transition-duration:90ms}
+.pop{animation:pop 520ms cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{0%{transform:scale(.6) translateY(8px);opacity:0}100%{transform:none;opacity:1}}
+.hand{font-family:Caveat,cursive;color:var(--ink);line-height:1}
+.math{font-family:"STIX Two Text",Georgia,serif}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</helmet>
+<div class="si {{themeClass}}" style="width: 1280px; height: 800px; position: relative; overflow: hidden; background: var(--bg)">
+
+  <div style="position: absolute; top: 16px; left: 24px; right: 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; z-index: 6">
+    <div style="display: flex; align-items: center; gap: 10px; width: 360px">
+      <a href="Main.dc.html" class="press" aria-label="Back to library" style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      </a>
+      <div>
+        <div style="font-size: 12px; color: var(--text3)">Physics › Mechanics</div>
+        <div style="font-size: 16px; font-weight: 700; letter-spacing: -0.01em">Kinematics</div>
+      </div>
+    </div>
+
+    <div class="calm" style="height: 40px; border-radius: 999px; display: flex; align-items: center; gap: 10px; padding: 0 16px">
+      <sc-if value="{{textMode}}" hint-placeholder-val="{{ false }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"></path><path d="M9 20h6"></path><path d="M12 4v16"></path></svg>
+        <span style="font-size: 13px; font-weight: 600">Text view</span>
+        <span style="font-size: 13px; color: var(--text3)">98% confident · tap a word to fix</span>
+      </sc-if>
+      <sc-if value="{{inkMode}}" hint-placeholder-val="{{ true }}">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--ok)"></span>
+        <span style="font-size: 13px; font-weight: 600">Page 12 of 18</span>
+        <span style="font-size: 13px; color: var(--text3)">Saved · synced</span>
+      </sc-if>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px; width: 360px; justify-content: flex-end">
+      <button role="switch" aria-checked="{{textModeStr}}" onClick="{{toggleText}}" class="press" style="height: 44px; padding: 0 8px 0 14px; border-radius: 999px; background: var(--surface); display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600">
+        Show as text
+        <span style="width: 44px; height: 28px; border-radius: 999px; background: {{trackBg}}; position: relative; transition: background-color 200ms; display: block">
+          <span style="position: absolute; top: 3px; left: {{knobLeft}}; width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left 420ms cubic-bezier(.34,1.56,.64,1); display: block"></span>
+        </span>
+      </button>
+      <a href="AiSheet.dc.html" class="press" style="height: 44px; padding: 0 16px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; text-decoration: none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"></path><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z"></path></svg>
+        Ask AI
+      </a>
+      <a href="Export.dc.html" class="press" aria-label="Export or share" style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 8 5-5 5 5"></path><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <div style="position: absolute; top: 84px; left: 24px; width: 104px; bottom: 0; display: flex; flex-direction: column; gap: 14px; align-items: center">
+    <sc-for list="{{thumbs}}" as="p" hint-placeholder-count="5">
+      <button class="press" aria-label="{{p.label}}" style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+        <span style="width: 76px; height: 106px; border-radius: 10px; background: var(--paper); display: block; box-sizing: border-box; border: {{p.border}}; padding: 10px 8px">
+          <span style="display: block; height: 3px; width: 70%; background: var(--line); border-radius: 2px; margin-bottom: 8px"></span>
+          <span style="display: block; height: 3px; width: 90%; background: var(--line); border-radius: 2px; margin-bottom: 6px"></span>
+          <span style="display: block; height: 3px; width: 60%; background: var(--line); border-radius: 2px; margin-bottom: 6px"></span>
+          <span style="display: block; height: 3px; width: 80%; background: var(--line); border-radius: 2px"></span>
+        </span>
+        <span style="font-size: 12px; font-weight: 600; color: {{p.fg}}">{{p.n}}</span>
+      </button>
+    </sc-for>
+  </div>
+
+  <div style="position: absolute; top: 84px; left: 200px; width: 840px; height: 1188px; background-color: var(--paper); border-radius: 6px; box-shadow: 0 2px 10px rgba(20,24,32,.08); background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 39px, var(--rule) 39px, var(--rule) 40px); background-position: 0 24px">
+
+    <sc-if value="{{inkMode}}" hint-placeholder-val="{{ true }}">
+      <div class="hand" style="position: absolute; left: 64px; top: 34px; font-size: 44px; font-weight: 700">Kinematics — constant acceleration</div>
+      <svg style="position: absolute; left: 60px; top: 78px" width="440" height="14" viewBox="0 0 440 14" fill="none" aria-hidden="true"><path d="M2 9 C 90 4, 220 12, 436 5" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"></path></svg>
+      <div style="position: absolute; left: 60px; top: 118px; width: 250px; height: 30px; background: var(--hl); border-radius: 6px; transform: rotate(-0.6deg)"></div>
+      <div class="hand" style="position: absolute; left: 72px; top: 112px; font-size: 38px">v = u + a t</div>
+      <div class="hand" style="position: absolute; left: 72px; top: 160px; font-size: 38px">s = u t + ½ a t²</div>
+      <div class="hand" style="position: absolute; left: 72px; top: 208px; font-size: 38px">v² = u² + 2 a s</div>
+      <div class="hand" style="position: absolute; left: 64px; top: 272px; font-size: 32px">Ex. car: u = 12 m/s, a = 3 m/s², t = 5 s → v? s?</div>
+      <div class="hand" style="position: absolute; left: 72px; top: 352px; font-size: 40px">v = 12 + 3 · 5</div>
+      <div class="hand" style="position: absolute; left: 72px; top: 432px; font-size: 40px">s = 12 · 5 + ½ · 3 · 5²</div>
+
+      <svg style="position: absolute; left: 520px; top: 100px" width="270" height="200" viewBox="0 0 270 200" fill="none" role="img" aria-label="Hand-drawn velocity–time graph, line rising from 12 to 27 metres per second over 5 seconds">
+        <path d="M30 10 L30 172 L260 170" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M30 120 L230 38 L230 171 L30 171 Z" fill="var(--hl)" stroke="none"></path>
+        <path d="M30 121 C 90 96, 160 68, 231 38" stroke="var(--ink)" stroke-width="2.6" stroke-linecap="round"></path>
+        <path d="M230 38 L230 170" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="5 6" stroke-linecap="round"></path>
+        <text x="4" y="125" font-family="Caveat" font-size="20" fill="var(--ink)">12</text>
+        <text x="236" y="40" font-family="Caveat" font-size="20" fill="var(--ink)">27</text>
+        <text x="224" y="194" font-family="Caveat" font-size="20" fill="var(--ink)">5 s</text>
+        <text x="8" y="16" font-family="Caveat" font-size="20" fill="var(--ink)">v</text>
+        <text x="110" y="150" font-family="Caveat" font-size="22" fill="var(--ink)">area = s</text>
+      </svg>
+    </sc-if>
+
+    <sc-if value="{{textMode}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 64px; top: 40px; right: 64px">
+        <h2 style="margin: 0 0 22px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">Kinematics — constant acceleration</h2>
+        <div class="math" style="font-size: 24px; line-height: 40px">
+          <div style="background: var(--hl); display: inline-block; padding: 0 8px; border-radius: 6px"><i>v</i> = <i>u</i> + <i>at</i></div>
+          <div><i>s</i> = <i>ut</i> + ½<i>at</i>²</div>
+          <div><i>v</i>² = <i>u</i>² + 2<i>as</i></div>
+        </div>
+        <p style="margin: 22px 0 8px; font-size: 18px; line-height: 28px">Example — car: <span class="math"><i>u</i> = 12 m/s, <i>a</i> = 3 m/s², <i>t</i> = 5 s</span>. Find <span class="math"><i>v</i></span> and <span class="math"><i>s</i></span>.</p>
+        <div class="math" style="font-size: 24px; line-height: 44px">
+          <div><i>v</i> = 12 + 3 · 5 = <b>27 m/s</b></div>
+          <div><i>s</i> = 12 · 5 + ½ · 3 · 5² = <b>97.5 m</b></div>
+        </div>
+        <div style="margin-top: 20px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text3); background: var(--surface2); padding: 8px 12px; border-radius: 12px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><path d="m3 15 5-5 4 4 3-3 6 6"></path></svg>
+          Sketch kept as ink: velocity–time graph
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showSel}}" hint-placeholder-val="{{ true }}">
+      <svg style="position: absolute; left: 44px; top: 334px" width="300" height="78" viewBox="0 0 300 78" fill="none" aria-hidden="true">
+        <path d="M14 18 C 60 2, 220 0, 282 12 C 300 30, 296 60, 270 70 C 190 80, 70 78, 20 66 C 2 56, 0 30, 14 18 Z" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 6" fill="var(--accent-tint)" fill-opacity=".35"></path>
+      </svg>
+
+      <div class="calm pop" role="toolbar" aria-label="Selection actions" style="position: absolute; left: 30px; top: 262px; height: 56px; border-radius: 999px; display: flex; align-items: center; padding: 0 6px; gap: 2px; z-index: 4">
+        <sc-for list="{{actions}}" as="a" hint-placeholder-count="7">
+          <button class="press" onClick="{{a.run}}" aria-label="{{a.label}}" style="height: 44px; padding: 0 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; background: {{a.bg}}; color: {{a.fg}}; border-left: {{a.sep}}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{a.d1}}"></path><path d="{{a.d2}}"></path></svg>
+            {{a.label}}
+          </button>
+        </sc-for>
+        <button class="press" onClick="{{clearSel}}" aria-label="Clear selection" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text3)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showCalc}}" hint-placeholder-val="{{ false }}">
+      <div class="pop" style="position: absolute; left: 352px; top: 348px; display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: 18px; padding: 8px 14px 8px 16px; box-shadow: 0 0 0 1px var(--line), var(--shadow); z-index: 3">
+        <span class="math" style="font-size: 26px; font-weight: 600; color: var(--accent)">= 27 m/s</span>
+        <span style="display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--ok); background: var(--ok-tint); padding: 4px 8px; border-radius: 999px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+          CAS-verified
+        </span>
+        <button class="press" style="height: 32px; padding: 0 10px; border-radius: 999px; background: var(--accent-tint); color: var(--accent); font-size: 12px; font-weight: 600">Insert</button>
+        <a href="AiSheet.dc.html" class="press" style="height: 32px; padding: 0 10px; border-radius: 999px; background: var(--surface2); color: var(--text2); font-size: 12px; font-weight: 600; display: flex; align-items: center; text-decoration: none">Explain steps</a>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="position: absolute; right: 24px; top: 96px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end">
+    <div class="calm" style="border-radius: 999px; display: flex; flex-direction: column; padding: 4px">
+      <button class="press" aria-label="Zoom in" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></button>
+      <span style="font-size: 11px; font-weight: 700; text-align: center; color: var(--text2); padding: 2px 0">110%</span>
+      <button class="press" aria-label="Zoom out" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+    </div>
+  </div>
+
+  <div style="position: absolute; bottom: 22px; left: 200px; width: 840px; display: flex; justify-content: center; z-index: 5">
+    <div class="calm" role="toolbar" aria-label="Pen tools" style="height: 64px; border-radius: 999px; display: flex; align-items: center; gap: 4px; padding: 0 10px">
+      <sc-for list="{{tools}}" as="t" hint-placeholder-count="5">
+        <button class="press" onClick="{{t.pick}}" aria-label="{{t.label}}" aria-pressed="{{t.pressed}}" style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: {{t.bg}}; color: {{t.fg}}">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.d1}}"></path><path d="{{t.d2}}"></path><path d="{{t.d3}}"></path></svg>
+        </button>
+      </sc-for>
+      <span style="width: 1px; height: 28px; background: var(--line); margin: 0 6px"></span>
+      <sc-for list="{{inks}}" as="c" hint-placeholder-count="4">
+        <button class="press" onClick="{{c.pick}}" aria-label="{{c.label}}" aria-pressed="{{c.pressed}}" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: {{c.ring}}">
+          <span style="width: 24px; height: 24px; border-radius: 50%; background: {{c.color}}; display: block"></span>
+        </button>
+      </sc-for>
+      <span style="width: 1px; height: 28px; background: var(--line); margin: 0 6px"></span>
+      <button class="press" aria-label="Undo" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg></button>
+      <button class="press" aria-label="Redo" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"></path><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"></path></svg></button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tool: 'lasso', ink: 'navy', text: false, sel: true, calc: false }; }
+  renderVals() {
+    const st = this.state;
+    const toolDefs = [
+      { id: 'pen', label: 'Pen', d1: 'M12 20h9', d2: 'M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z', d3: '' },
+      { id: 'highlighter', label: 'Highlighter', d1: 'm9 11-6 6v3h9l3-3', d2: 'm22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4', d3: '' },
+      { id: 'eraser', label: 'Eraser', d1: 'm7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21', d2: 'M22 21H7', d3: 'm5 11 9 9' },
+      { id: 'lasso', label: 'Lasso select', d1: 'M7 22a5 5 0 0 1-2-4', d2: 'M3.3 14A6.8 6.8 0 0 1 2 10c0-4.4 4.5-8 10-8s10 3.6 10 8-4.5 8-10 8a12 12 0 0 1-5-1', d3: 'M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z' },
+      { id: 'shapes', label: 'Shapes', d1: 'M3 3h8v8H3z', d2: 'M21 17a4 4 0 1 1-8 0 4 4 0 0 1 8 0z', d3: '' }
+    ];
+    const tools = toolDefs.map(t => {
+      const on = st.tool === t.id;
+      return { ...t, pressed: on ? 'true' : 'false', bg: on ? 'var(--text)' : 'transparent', fg: on ? 'var(--surface)' : 'var(--text)', pick: () => this.setState({ tool: t.id, sel: t.id === 'lasso' ? st.sel : false }) };
+    });
+    const inks = [
+      { id: 'navy', label: 'Navy ink', color: '#1D2B5C' },
+      { id: 'blue', label: 'Blue ink', color: '#2557D6' },
+      { id: 'red', label: 'Red ink', color: '#D1342F' },
+      { id: 'green', label: 'Green ink', color: '#1C7D45' }
+    ].map(c => {
+      const on = st.ink === c.id;
+      return { ...c, pressed: on ? 'true' : 'false', ring: on ? '0 0 0 2px var(--accent)' : 'none', pick: () => this.setState({ ink: c.id }) };
+    });
+    const actionDefs = [
+      { label: 'Cut', d1: 'M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12', d2: 'M9 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0z' },
+      { label: 'Copy', d1: 'M8 8h13v13H8z', d2: 'M4 16V4h12' },
+      { label: 'Paste', d1: 'M9 2h6v4H9z', d2: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2' },
+      { label: 'To text', d1: 'M4 7V4h16v3', d2: 'M9 20h6M12 4v16', sep: true, run: () => this.setState({ text: true, sel: false, calc: false }) },
+      { label: 'Ask AI', d1: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z', d2: 'M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z' },
+      { label: 'Calculate', d1: 'M5 2h14v20H5z', d2: 'M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h8', primary: true, run: () => this.setState({ calc: true }) },
+      { label: 'Flashcard', d1: 'M2 6h16v14H2z', d2: 'M6 2h14a2 2 0 0 1 2 2v12' }
+    ];
+    const actions = actionDefs.map(a => ({
+      ...a,
+      bg: a.primary ? 'var(--accent)' : 'transparent',
+      fg: a.primary ? 'var(--accent-ink)' : 'var(--text)',
+      sep: 'none',
+      run: a.run || (() => {})
+    }));
+    const thumbs = [10, 11, 12, 13, 14].map(n => ({ n: String(n), label: 'Page ' + n, border: n === 12 ? '2px solid var(--accent)' : '1px solid var(--line)', fg: n === 12 ? 'var(--accent)' : 'var(--text3)' }));
+    return {
+      themeClass: this.props.dark ? 'dark' : '',
+      tools, inks, actions, thumbs,
+      textMode: st.text,
+      inkMode: !st.text,
+      textModeStr: st.text ? 'true' : 'false',
+      trackBg: st.text ? 'var(--accent)' : 'var(--line)',
+      knobLeft: st.text ? '19px' : '3px',
+      toggleText: () => this.setState({ text: !st.text, sel: false, calc: false }),
+      showSel: st.sel && !st.text,
+      showCalc: st.calc && !st.text,
+      clearSel: () => this.setState({ sel: false, calc: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

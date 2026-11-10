@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>StudyInk · Learning path and focus</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2557D6}a:hover{color:#1A43AA}
+.si{--bg:#F3F4F7;--surface:#FFFFFF;--surface2:#F3F5F8;--line:#E3E6EC;--text:#14161B;--text2:#454B57;--text3:#5F6672;--accent:#2557D6;--accent-ink:#FFFFFF;--accent-tint:#E8EEFC;--subj:#C2620A;--subj-tint:#FCEEDF;--ok:#1C7D45;--ok-tint:#E3F3E9;--float:rgba(255,255,255,.84);--float-edge:rgba(255,255,255,.95);--float-ring:rgba(20,24,32,.08);--shadow:0 10px 30px rgba(20,24,32,.12),0 2px 6px rgba(20,24,32,.06);--card-shadow:0 1px 2px rgba(20,24,32,.05);font-family:Inter,system-ui,sans-serif;color:var(--text)}
+.si.dark{--bg:#0F1115;--surface:#181B21;--surface2:#21252D;--line:#2C313B;--text:#F1F3F6;--text2:#C3C9D3;--text3:#99A1AE;--accent:#7FA2FF;--accent-ink:#0B1020;--accent-tint:#1C2740;--subj:#F2A35A;--subj-tint:#33240F;--ok:#5BD08E;--ok-tint:#12301F;--float:rgba(30,33,40,.86);--float-edge:rgba(255,255,255,.08);--float-ring:rgba(0,0,0,.45);--shadow:0 12px 32px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3);--card-shadow:none}
+.calm{background:var(--float);backdrop-filter:blur(20px) saturate(1.15);-webkit-backdrop-filter:blur(20px) saturate(1.15);box-shadow:inset 0 1px 0 var(--float-edge),0 0 0 1px var(--float-ring),var(--shadow)}
+.press{transition:transform 460ms cubic-bezier(.34,1.56,.64,1),background-color 160ms,width 520ms cubic-bezier(.34,1.4,.64,1)}
+.press:active{transform:scale(.94);transition-duration:90ms}
+.pulse{animation:pulse 2s infinite ease-in-out}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--subj) 45%, transparent)}50%{box-shadow:0 0 0 10px color-mix(in srgb, var(--subj) 0%, transparent)}}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</helmet>
+<div class="si {{themeClass}}" style="width: 1280px; height: 800px; position: relative; overflow: hidden; background: var(--bg)">
+
+  <div style="position: absolute; top: 16px; left: 24px; right: 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; z-index: 5">
+    <div style="display: flex; align-items: center; gap: 10px; width: 300px">
+      <a href="Main.dc.html" class="press" aria-label="Back to library" style="width: 44px; height: 44px; border-radius: 50%; background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      </a>
+      <span style="font-size: 16px; font-weight: 700">Learn</span>
+    </div>
+    <button class="calm press" onClick="{{toggleRun}}" aria-label="{{islandLabel}}" style="height: 44px; border-radius: 999px; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 16px; width: {{islandW}}">
+      <sc-if value="{{running}}" hint-placeholder-val="{{ false }}">
+        <span class="pulse" style="width: 10px; height: 10px; border-radius: 50%; background: var(--subj); display: block; flex: none"></span>
+        <span style="font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums">{{clock}}</span>
+        <span style="font-size: 13px; color: var(--text3); white-space: nowrap">Focus · Physics</span>
+        <span style="margin-left: auto; width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; flex: none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+        </span>
+      </sc-if>
+      <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M10 2h4"></path></svg>
+        <span style="font-size: 13px; font-weight: 600; white-space: nowrap">Focus ready · {{clock}}</span>
+      </sc-if>
+    </button>
+    <div style="width: 300px"></div>
+  </div>
+
+  <div style="position: absolute; top: 88px; left: 48px; width: 700px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div style="width: 44px; height: 44px; border-radius: 14px; background: var(--subj-tint); color: var(--subj); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px">Φ</div>
+      <div>
+        <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1">Kinematics path</h1>
+        <p style="margin: 2px 0 0; font-size: 14px; color: var(--text3)">Built from Physics textbook ch. 2–3 and your notes · 3 of 9 done</p>
+      </div>
+    </div>
+
+    <ol style="list-style: none; margin: 24px 0 0; padding: 0; position: relative">
+      <div style="position: absolute; left: 21px; top: 22px; bottom: 22px; width: 2px; background: var(--line)"></div>
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+        <li style="position: relative; display: flex; gap: 16px; align-items: flex-start; padding: 0 0 12px">
+          <span style="width: 44px; height: 44px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; background: {{s.dotBg}}; color: {{s.dotFg}}; box-shadow: {{s.dotRing}}; position: relative">{{s.mark}}</span>
+          <div style="flex: 1; min-width: 0; background: {{s.cardBg}}; border-radius: 20px; padding: {{s.pad}}; box-shadow: {{s.cardShadow}}">
+            <div style="display: flex; align-items: baseline; gap: 10px">
+              <span style="font-size: 16px; font-weight: 700; color: {{s.titleFg}}">{{s.title}}</span>
+              <span style="font-size: 12px; color: var(--text3)">{{s.meta}}</span>
+            </div>
+            <sc-if value="{{s.current}}" hint-placeholder-val="{{ false }}">
+              <p style="margin: 6px 0 12px; font-size: 14px; line-height: 20px; color: var(--text2)">Launch angle, range and maximum height. Uses textbook pp. 52–58 and your page 12 example.</p>
+              <div style="display: flex; gap: 8px">
+                <button class="press" style="height: 40px; padding: 0 16px; border-radius: 999px; background: var(--subj); color: #FFFFFF; font-size: 13px; font-weight: 700">Start lesson</button>
+                <button class="press" style="height: 40px; padding: 0 16px; border-radius: 999px; background: var(--surface2); font-size: 13px; font-weight: 600">Quiz me · 5</button>
+                <button class="press" style="height: 40px; padding: 0 16px; border-radius: 999px; background: var(--surface2); font-size: 13px; font-weight: 600">Worked example</button>
+              </div>
+            </sc-if>
+          </div>
+        </li>
+      </sc-for>
+    </ol>
+  </div>
+
+  <div style="position: absolute; top: 88px; right: 48px; width: 416px; display: flex; flex-direction: column; gap: 16px">
+    <section aria-label="Focus timer" style="background: var(--surface); border-radius: 28px; padding: 22px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; align-items: center; gap: 16px">
+      <div style="align-self: stretch; display: flex; justify-content: space-between; align-items: center">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700">Focus</h2>
+        <div role="radiogroup" aria-label="Session length" style="display: flex; gap: 4px; background: var(--surface2); border-radius: 999px; padding: 3px">
+          <sc-for list="{{presets}}" as="p" hint-placeholder-count="3">
+            <button class="press" role="radio" aria-checked="{{p.checked}}" onClick="{{p.pick}}" style="height: 32px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 700; background: {{p.bg}}; color: {{p.fg}}">{{p.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="position: relative; width: 200px; height: 200px">
+        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <circle cx="100" cy="100" r="88" stroke="var(--line)" stroke-width="12"></circle>
+          <circle cx="100" cy="100" r="88" stroke="var(--subj)" stroke-width="12" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="{{dashOffset}}" transform="rotate(-90 100 100)" style="transition: stroke-dashoffset 900ms linear"></circle>
+        </svg>
+        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center">
+          <span style="font-size: 44px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums">{{clock}}</span>
+          <span style="font-size: 13px; color: var(--text3)">{{phase}}</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px">
+        <button class="press" onClick="{{toggleRun}}" style="height: 48px; min-width: 140px; padding: 0 22px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 15px; font-weight: 700">{{runLabel}}</button>
+        <button class="press" onClick="{{reset}}" style="height: 48px; padding: 0 18px; border-radius: 999px; background: var(--surface2); font-size: 15px; font-weight: 600">Reset</button>
+      </div>
+      <button role="switch" aria-checked="{{dndStr}}" onClick="{{toggleDnd}}" style="align-self: stretch; display: flex; align-items: center; gap: 12px; background: var(--surface2); border-radius: 18px; padding: 12px 14px; text-align: left">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg>
+        <span style="flex: 1">
+          <span style="display: block; font-size: 14px; font-weight: 600">Do not disturb</span>
+          <span style="display: block; font-size: 12px; color: var(--text3)">On this laptop · phone gets a focus ping via KDE Connect</span>
+        </span>
+        <span style="width: 48px; height: 30px; border-radius: 999px; background: {{dndTrack}}; position: relative; display: block; transition: background-color 200ms; flex: none">
+          <span style="position: absolute; top: 3px; left: {{dndKnob}}; width: 24px; height: 24px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left 420ms cubic-bezier(.34,1.56,.64,1); display: block"></span>
+        </span>
+      </button>
+    </section>
+
+    <section aria-label="Today" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+      <div style="background: var(--surface); border-radius: 20px; padding: 14px 16px; box-shadow: var(--card-shadow)">
+        <div style="font-size: 24px; font-weight: 800">4</div><div style="font-size: 12px; color: var(--text3)">sessions today</div>
+      </div>
+      <div style="background: var(--surface); border-radius: 20px; padding: 14px 16px; box-shadow: var(--card-shadow)">
+        <div style="font-size: 24px; font-weight: 800">6 d</div><div style="font-size: 12px; color: var(--text3)">streak</div>
+      </div>
+      <a href="Main.dc.html" class="press" style="text-decoration: none; color: var(--text); background: var(--accent-tint); border-radius: 20px; padding: 14px 16px">
+        <div style="font-size: 24px; font-weight: 800; color: var(--accent)">24</div><div style="font-size: 12px; color: var(--text2)">cards due</div>
+      </a>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { total: 1500, left: 1500, running: false, dnd: true }; }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      if (this.state.running && this.state.left > 0) this.setState({ left: this.state.left - 1 });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    const st = this.state;
+    const mm = String(Math.floor(st.left / 60)).padStart(2, '0');
+    const ss = String(st.left % 60).padStart(2, '0');
+    const frac = st.left / st.total;
+    const steps = [
+      { title: 'Displacement & velocity', meta: '12 min · done', state: 'done' },
+      { title: 'Acceleration', meta: '15 min · done', state: 'done' },
+      { title: 'Equations of motion', meta: '20 min · done · quiz 5/5', state: 'done' },
+      { title: 'Projectile motion', meta: '15 min · next', state: 'current' },
+      { title: 'Relative velocity', meta: '15 min', state: 'locked' },
+      { title: 'Exam-style problems', meta: '30 min · AI-generated', state: 'locked' }
+    ].map((s, i) => {
+      const done = s.state === 'done', cur = s.state === 'current';
+      return {
+        ...s,
+        current: cur,
+        mark: done ? '✓' : String(i + 1),
+        dotBg: done ? 'var(--ok-tint)' : cur ? 'var(--subj)' : 'var(--surface)',
+        dotFg: done ? 'var(--ok)' : cur ? '#FFFFFF' : 'var(--text3)',
+        dotRing: cur ? '0 0 0 6px var(--subj-tint)' : done ? 'none' : 'inset 0 0 0 2px var(--line)',
+        cardBg: cur ? 'var(--surface)' : 'transparent',
+        cardShadow: cur ? 'var(--shadow)' : 'none',
+        pad: cur ? '16px 18px' : '11px 4px',
+        titleFg: s.state === 'locked' ? 'var(--text3)' : 'var(--text)'
+      };
+    });
+    const presets = [['25 / 5', 1500], ['50 / 10', 3000], ['90', 5400]].map(([label, secs]) => {
+      const on = st.total === secs;
+      return { label, checked: on ? 'true' : 'false', bg: on ? 'var(--surface)' : 'transparent', fg: on ? 'var(--text)' : 'var(--text3)', pick: () => this.setState({ total: secs, left: secs, running: false }) };
+    });
+    return {
+      themeClass: this.props.dark ? 'dark' : '',
+      steps, presets,
+      clock: mm + ':' + ss,
+      running: st.running,
+      idle: !st.running,
+      islandW: st.running ? '280px' : '220px',
+      islandLabel: st.running ? 'Pause focus timer' : 'Start focus timer',
+      phase: st.running ? 'Focusing' : (st.left < st.total ? 'Paused' : 'Ready'),
+      runLabel: st.running ? 'Pause' : (st.left < st.total ? 'Resume' : 'Start focus'),
+      dashOffset: (552.9 * (1 - frac)).toFixed(1),
+      toggleRun: () => this.setState({ running: !st.running }),
+      reset: () => this.setState({ running: false, left: st.total }),
+      dndStr: st.dnd ? 'true' : 'false',
+      dndTrack: st.dnd ? 'var(--accent)' : 'var(--line)',
+      dndKnob: st.dnd ? '21px' : '3px',
+      toggleDnd: () => this.setState({ dnd: !st.dnd })
+    };
+  }
+}
+</script>
+</body>
+</html>

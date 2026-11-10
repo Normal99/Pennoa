@@ -1,0 +1,49 @@
+# cargo-deny configuration — enforces GPL-3.0 compatibility (ADR-0007).
+# cargo-deny >= 0.18.4 matches GNU licence IDs exactly, so GPL-2.0-only is NOT admitted.
+
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+allow = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "0BSD",
+    "CC0-1.0",
+    "MPL-2.0",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "BSL-1.0",
+    "CDLA-Permissive-2.0",
+    "OFL-1.1",
+    "LGPL-3.0-only",
+    "LGPL-3.0-or-later",
+    "GPL-3.0-only",       # Slint's GPLv3 option
+    "GPL-3.0-or-later",   # our own crates, Giac
+]
+# Never add: GPL-2.0-only, GPL-2.0 (deprecated id), AGPL, SSPL, BUSL, non-commercial or
+# "source-available" licences (e.g. Symbolica).
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-git = [
+    # mistral.rs is only current on git (crates.io lags) — see RESEARCH.md §2
+    "https://github.com/EricLBuehler/mistral.rs",
+]

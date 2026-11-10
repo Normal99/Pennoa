@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>StudyInk · Scanner</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#7FA2FF}a:hover{color:#A9C0FF}
+.si{--bg:#F3F4F7;--surface:#FFFFFF;--surface2:#F3F5F8;--line:#E3E6EC;--text:#14161B;--text2:#454B57;--text3:#5F6672;--accent:#2557D6;--accent-ink:#FFFFFF;--accent-tint:#E8EEFC;--ok:#1C7D45;--float:rgba(255,255,255,.84);--float-edge:rgba(255,255,255,.95);--float-ring:rgba(20,24,32,.08);--shadow:0 10px 30px rgba(20,24,32,.14),0 2px 6px rgba(20,24,32,.06);font-family:Inter,system-ui,sans-serif;color:var(--text)}
+.si.dark{--bg:#07080A;--surface:#181B21;--surface2:#22262E;--line:#2C313B;--text:#F1F3F6;--text2:#C3C9D3;--text3:#99A1AE;--accent:#7FA2FF;--accent-ink:#0B1020;--accent-tint:#1C2740;--ok:#5BD08E;--float:rgba(24,27,33,.82);--float-edge:rgba(255,255,255,.08);--float-ring:rgba(0,0,0,.45);--shadow:0 16px 40px rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.3)}
+.calm{background:var(--float);backdrop-filter:blur(20px) saturate(1.15);-webkit-backdrop-filter:blur(20px) saturate(1.15);box-shadow:inset 0 1px 0 var(--float-edge),0 0 0 1px var(--float-ring),var(--shadow)}
+.press{transition:transform 460ms cubic-bezier(.34,1.56,.64,1),background-color 160ms}
+.press:active{transform:scale(.92);transition-duration:90ms}
+.pop{animation:pop 520ms cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:none;opacity:1}}
+.ring{animation:spin 1.6s linear infinite;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</helmet>
+<div class="si {{themeClass}}" style="width: 1280px; height: 800px; position: relative; overflow: hidden; background: var(--bg)">
+
+  <div style="position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 60%, #3A3F47 0%, #23262C 55%, #121418 100%)"></div>
+  <svg style="position: absolute; inset: 0" width="1280" height="800" viewBox="0 0 1280 800" fill="none" role="img" aria-label="Camera view: a worksheet on a desk, its edges detected and outlined">
+    <path d="M430 150 L850 180 L880 700 L390 690 Z" fill="#ECEAE4"></path>
+    <path d="{{linesD}}" stroke="#7D8089" stroke-width="5" stroke-linecap="round"></path>
+    <path d="M470 196 L640 208" stroke="#3B3E45" stroke-width="9" stroke-linecap="round"></path>
+    <path d="M430 150 L850 180 L880 700 L390 690 Z" stroke="var(--accent)" stroke-width="3" fill="var(--accent)" fill-opacity=".08"></path>
+    <circle cx="430" cy="150" r="11" fill="var(--accent)" stroke="#FFFFFF" stroke-width="3"></circle>
+    <circle cx="850" cy="180" r="11" fill="var(--accent)" stroke="#FFFFFF" stroke-width="3"></circle>
+    <circle cx="880" cy="700" r="11" fill="var(--accent)" stroke="#FFFFFF" stroke-width="3"></circle>
+    <circle cx="390" cy="690" r="11" fill="var(--accent)" stroke="#FFFFFF" stroke-width="3"></circle>
+  </svg>
+
+  <div style="position: absolute; top: 16px; left: 24px; right: 24px; height: 48px; display: flex; align-items: center; justify-content: space-between">
+    <a href="Main.dc.html" class="calm press" aria-label="Close scanner" style="width: 44px; height: 44px; border-radius: 50%; color: var(--text); display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+    </a>
+    <div class="calm" style="height: 40px; border-radius: 999px; display: flex; align-items: center; gap: 10px; padding: 0 16px">
+      <svg class="ring" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="var(--line)" stroke-width="3"></circle><path d="M12 3a9 9 0 0 1 9 9" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"></path></svg>
+      <span style="font-size: 13px; font-weight: 600">{{status}}</span>
+      <span style="font-size: 13px; color: var(--text3)">{{countLabel}}</span>
+    </div>
+    <div class="calm" role="radiogroup" aria-label="Camera source" style="height: 44px; border-radius: 999px; display: flex; align-items: center; padding: 3px; gap: 2px">
+      <sc-for list="{{sources}}" as="s" hint-placeholder-count="2">
+        <button class="press" role="radio" aria-checked="{{s.checked}}" onClick="{{s.pick}}" style="height: 38px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 600; background: {{s.bg}}; color: {{s.fg}}">{{s.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 912px; top: 380px; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.55); color: #FFFFFF; padding: 8px 12px; border-radius: 12px; font-size: 13px; font-weight: 600">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg>
+    {{hint}}
+  </div>
+
+  <div class="calm" aria-label="Scanned pages" style="position: absolute; right: 24px; top: 92px; bottom: 132px; width: 132px; border-radius: 28px; padding: 14px 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; align-items: center">
+    <span style="font-size: 12px; font-weight: 700; color: var(--text2)">Pages</span>
+    <sc-for list="{{pages}}" as="p" hint-placeholder-count="3">
+      <div class="pop" style="position: relative; width: 84px; height: 112px; border-radius: 10px; background: #F4F2EC; box-shadow: 0 2px 6px rgba(0,0,0,.3); display: flex; flex-direction: column; gap: 6px; padding: 12px 10px; box-sizing: border-box">
+        <span style="display: block; height: 4px; width: 60%; background: #3B3E45; border-radius: 2px"></span>
+        <span style="display: block; height: 3px; width: 90%; background: #9A9DA4; border-radius: 2px"></span>
+        <span style="display: block; height: 3px; width: 80%; background: #9A9DA4; border-radius: 2px"></span>
+        <span style="display: block; height: 3px; width: 86%; background: #9A9DA4; border-radius: 2px"></span>
+        <span style="position: absolute; bottom: 6px; right: 6px; min-width: 20px; height: 20px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{p.n}}</span>
+      </div>
+    </sc-for>
+    <button class="press" style="margin-top: auto; width: 100%; height: 44px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700">Review</button>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 24px; display: flex; flex-direction: column; align-items: center; gap: 14px">
+    <div class="calm" role="radiogroup" aria-label="Scan mode" style="height: 44px; border-radius: 999px; display: flex; align-items: center; padding: 3px; gap: 2px">
+      <sc-for list="{{modes}}" as="m" hint-placeholder-count="5">
+        <button class="press" role="radio" aria-checked="{{m.checked}}" onClick="{{m.pick}}" style="height: 38px; padding: 0 16px; border-radius: 999px; font-size: 13px; font-weight: 600; background: {{m.bg}}; color: {{m.fg}}">{{m.label}}</button>
+      </sc-for>
+    </div>
+    <div style="display: flex; align-items: center; gap: 28px">
+      <button class="calm press" aria-label="Import photos from phone" style="width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg>
+      </button>
+      <button class="press" onClick="{{shoot}}" aria-label="Capture page" style="width: 76px; height: 76px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(255,255,255,.35), 0 8px 24px rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center">
+        <span style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #14161B; display: block; box-sizing: border-box"></span>
+      </button>
+      <button class="calm press" aria-label="Enhancement filters" style="width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v18"></path><path d="M12 7h5"></path><path d="M12 11h8"></path><path d="M12 15h7"></path></svg>
+      </button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":true},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { mode: 'Document', source: 'Keyboard camera', count: 3 }; }
+  renderVals() {
+    const st = this.state;
+    const P0 = [430, 150], P1 = [850, 180], P2 = [880, 700], P3 = [390, 690];
+    const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+    const widths = [0.82, 0.74, 0.86, 0.6, 0.8, 0.7, 0.84, 0.55, 0.78, 0.72, 0.8, 0.5];
+    let d = '';
+    widths.forEach((w, i) => {
+      const t = 0.17 + i * 0.062;
+      const L = lerp(P0, P3, t), R = lerp(P1, P2, t);
+      const a = lerp(L, R, 0.09), b = lerp(L, R, 0.09 + w * 0.82);
+      d += 'M' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + ' L' + b[0].toFixed(1) + ' ' + b[1].toFixed(1) + ' ';
+    });
+    const hints = {
+      'Document': 'Edges found · flattening perspective',
+      'Book': 'Page curve detected · dewarping, fingers removed',
+      'Whiteboard': 'Glare reduced · boosting marker contrast',
+      'ID card': 'Front side · flip for the back',
+      'Business card': 'Reading contact details'
+    };
+    const modes = Object.keys(hints).map(label => {
+      const on = st.mode === label;
+      return { label, checked: on ? 'true' : 'false', bg: on ? 'var(--text)' : 'transparent', fg: on ? 'var(--surface)' : 'var(--text)', pick: () => this.setState({ mode: label }) };
+    });
+    const sources = ['Keyboard camera', 'Phone · KDE Connect'].map(label => {
+      const on = st.source === label;
+      return { label, checked: on ? 'true' : 'false', bg: on ? 'var(--accent)' : 'transparent', fg: on ? 'var(--accent-ink)' : 'var(--text)', pick: () => this.setState({ source: label }) };
+    });
+    const pages = [];
+    for (let i = Math.max(1, st.count - 2); i <= st.count; i++) pages.push({ n: String(i) });
+    return {
+      themeClass: (this.props.dark ?? true) ? 'dark' : '',
+      linesD: d,
+      modes, sources, pages,
+      hint: hints[st.mode],
+      status: 'Hold steady · auto-capture',
+      countLabel: st.count + (st.count === 1 ? ' page' : ' pages'),
+      shoot: () => this.setState({ count: st.count + 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>
