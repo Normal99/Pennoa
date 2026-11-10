@@ -37,6 +37,28 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
         <div style="font-size: 12px; color: var(--text3)">Physics › Mechanics</div>
         <div style="font-size: 16px; font-weight: 700; letter-spacing: -0.01em">Kinematics</div>
       </div>
+      <div style="position: relative">
+        <button class="press" onClick="{{togglePaper}}" aria-haspopup="menu" aria-expanded="{{paperOpenStr}}" style="height: 36px; padding: 0 10px 0 12px; border-radius: 999px; background: var(--surface); display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
+          {{paperLabel}}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+        </button>
+        <sc-if value="{{paperOpen}}" hint-placeholder-val="{{ false }}">
+          <div class="calm pop" role="menu" aria-label="Page size" style="position: absolute; top: 44px; left: 0; width: 280px; border-radius: 22px; padding: 6px; display: flex; flex-direction: column; gap: 2px; z-index: 10">
+            <sc-for list="{{papers}}" as="pp" hint-placeholder-count="6">
+              <button class="press" role="menuitemradio" aria-checked="{{pp.checked}}" onClick="{{pp.pick}}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; text-align: left; background: {{pp.bg}}">
+                <span style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; flex: none">
+                  <span style="display: block; width: {{pp.iw}}; height: {{pp.ih}}; border-radius: {{pp.ir}}; border: 2px solid {{pp.fg}}; border-style: {{pp.istyle}}; box-sizing: border-box"></span>
+                </span>
+                <span style="flex: 1">
+                  <span style="display: block; font-size: 14px; font-weight: 600; color: {{pp.fg}}">{{pp.label}}</span>
+                  <span style="display: block; font-size: 12px; color: var(--text3)">{{pp.sub}}</span>
+                </span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
     </div>
 
     <div class="calm" style="height: 40px; border-radius: 999px; display: flex; align-items: center; gap: 10px; padding: 0 16px">
@@ -47,8 +69,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
       </sc-if>
       <sc-if value="{{inkMode}}" hint-placeholder-val="{{ true }}">
         <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--ok)"></span>
-        <span style="font-size: 13px; font-weight: 600">Page 12 of 18</span>
-        <span style="font-size: 13px; color: var(--text3)">Saved · synced</span>
+        <span style="font-size: 13px; font-weight: 600">{{islandTitle}}</span>
+        <span style="font-size: 13px; color: var(--text3)">{{islandSub}}</span>
       </sc-if>
     </div>
 
@@ -69,6 +91,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
     </div>
   </div>
 
+  <sc-if value="{{paged}}" hint-placeholder-val="{{ true }}">
   <div style="position: absolute; top: 84px; left: 24px; width: 104px; bottom: 0; display: flex; flex-direction: column; gap: 14px; align-items: center">
     <sc-for list="{{thumbs}}" as="p" hint-placeholder-count="5">
       <button class="press" aria-label="{{p.label}}" style="display: flex; flex-direction: column; align-items: center; gap: 6px">
@@ -82,8 +105,20 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
       </button>
     </sc-for>
   </div>
+  </sc-if>
 
-  <div style="position: absolute; top: 84px; left: 200px; width: 840px; height: 1188px; background-color: var(--paper); border-radius: 6px; box-shadow: 0 2px 10px rgba(20,24,32,.08); background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 39px, var(--rule) 39px, var(--rule) 40px); background-position: 0 24px">
+  <div style="position: absolute; top: {{pageTop}}; left: {{pageLeft}}; width: {{pageW}}; height: {{pageH}}; background-color: var(--paper); border-radius: {{pageRadius}}; box-shadow: {{pageShadow}}; background-image: {{pageBgImg}}; background-size: {{pageBgSize}}; background-position: {{pageBgPos}}; transition: width 520ms cubic-bezier(.34,1.4,.64,1), height 520ms cubic-bezier(.34,1.4,.64,1), left 520ms cubic-bezier(.34,1.4,.64,1), top 520ms cubic-bezier(.34,1.4,.64,1)">
+  <div style="position: absolute; left: {{contentDx}}; top: {{contentDy}}; width: 840px; height: 1188px; transform: scale({{contentScale}}); transform-origin: 0 0; transition: left 520ms cubic-bezier(.34,1.4,.64,1), top 520ms cubic-bezier(.34,1.4,.64,1), transform 520ms cubic-bezier(.34,1.4,.64,1)">
+
+    <sc-if value="{{infinite}}" hint-placeholder-val="{{ false }}">
+      <svg style="position: absolute; left: 600px; top: 352px" width="250" height="150" viewBox="0 0 250 150" fill="none" aria-hidden="true">
+        <path d="M6 40 C 60 30, 120 30, 170 60" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"></path>
+        <path d="M160 48 L172 61 L156 66" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M120 140 C 150 60, 200 60, 240 140" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="2 7"></path>
+      </svg>
+      <div class="hand" style="position: absolute; left: 790px; top: 384px; font-size: 32px; white-space: nowrap">next: projectiles</div>
+      <div class="hand" style="position: absolute; left: 800px; top: 520px; font-size: 26px; white-space: nowrap">range R = u² sin 2θ / g</div>
+    </sc-if>
 
     <sc-if value="{{inkMode}}" hint-placeholder-val="{{ true }}">
       <div class="hand" style="position: absolute; left: 64px; top: 34px; font-size: 44px; font-weight: 700">Kinematics — constant acceleration</div>
@@ -159,6 +194,19 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
       </div>
     </sc-if>
   </div>
+  </div>
+
+  <sc-if value="{{infinite}}" hint-placeholder-val="{{ false }}">
+    <div class="calm pop" aria-label="Minimap" style="position: absolute; left: 24px; bottom: 22px; width: 168px; height: 112px; border-radius: 20px; padding: 10px; box-sizing: border-box; z-index: 5">
+      <div style="position: relative; width: 100%; height: 100%; border-radius: 10px; background: var(--paper); overflow: hidden">
+        <span style="position: absolute; left: 14px; top: 12px; width: 70px; height: 4px; background: var(--ink); opacity: .5; border-radius: 2px; display: block"></span>
+        <span style="position: absolute; left: 14px; top: 22px; width: 50px; height: 3px; background: var(--ink); opacity: .35; border-radius: 2px; display: block"></span>
+        <span style="position: absolute; left: 14px; top: 30px; width: 56px; height: 3px; background: var(--ink); opacity: .35; border-radius: 2px; display: block"></span>
+        <span style="position: absolute; left: 96px; top: 40px; width: 40px; height: 3px; background: var(--ink); opacity: .35; border-radius: 2px; display: block"></span>
+        <span style="position: absolute; left: 8px; top: 6px; width: 100px; height: 64px; border: 2px solid var(--accent); border-radius: 6px; display: block; box-sizing: border-box"></span>
+      </div>
+    </div>
+  </sc-if>
 
   <div style="position: absolute; right: 24px; top: 96px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end">
     <div class="calm" style="border-radius: 999px; display: flex; flex-direction: column; padding: 4px">
@@ -190,7 +238,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { tool: 'lasso', ink: 'navy', text: false, sel: true, calc: false }; }
+  constructor(props) { super(props); this.state = { tool: 'lasso', ink: 'navy', text: false, sel: true, calc: false, paper: 'A4', paperOpen: false }; }
   renderVals() {
     const st = this.state;
     const toolDefs = [
@@ -230,9 +278,45 @@ class Component extends DCLogic {
       run: a.run || (() => {})
     }));
     const thumbs = [10, 11, 12, 13, 14].map(n => ({ n: String(n), label: 'Page ' + n, border: n === 12 ? '2px solid var(--accent)' : '1px solid var(--line)', fg: n === 12 ? 'var(--accent)' : 'var(--text3)' }));
+    const paperDefs = [
+      { id: 'A5', label: 'A5', sub: '148 × 210 mm · pocket notes', iw: '12px', ih: '17px' },
+      { id: 'A4', label: 'A4', sub: '210 × 297 mm · prints 1:1', iw: '15px', ih: '21px' },
+      { id: 'A3', label: 'A3', sub: '297 × 420 mm · big diagrams', iw: '19px', ih: '27px' },
+      { id: 'Letter', label: 'Letter', sub: '8.5 × 11 in', iw: '16px', ih: '21px' },
+      { id: 'Custom', label: 'Custom size…', sub: 'Any width × height', iw: '22px', ih: '14px' },
+      { id: 'Infinite', label: 'Infinite canvas', sub: 'Grows in every direction · auto-pages on export', iw: '26px', ih: '22px', inf: true }
+    ];
+    const papers = paperDefs.map(pp => {
+      const on = st.paper === pp.id;
+      return { ...pp, checked: on ? 'true' : 'false', bg: on ? 'var(--accent-tint)' : 'transparent', fg: on ? 'var(--accent)' : 'var(--text)', ir: pp.inf ? '8px' : '2px', istyle: pp.inf ? 'dashed' : 'solid', pick: () => this.setState({ paper: pp.id, paperOpen: false }) };
+    });
+    const inf = st.paper === 'Infinite';
+    const sizes = { A5: [600, 851], A4: [840, 1188], A3: [960, 1358], Letter: [840, 1087], Custom: [960, 720] };
+    const sz = sizes[st.paper] || sizes.A4;
+    const ruled = 'repeating-linear-gradient(to bottom, transparent 0, transparent 39px, var(--rule) 39px, var(--rule) 40px)';
     return {
       themeClass: this.props.dark ? 'dark' : '',
-      tools, inks, actions, thumbs,
+      tools, inks, actions, thumbs, papers,
+      paperLabel: st.paper === 'Infinite' ? 'Infinite' : st.paper,
+      paperOpen: st.paperOpen,
+      paperOpenStr: st.paperOpen ? 'true' : 'false',
+      togglePaper: () => this.setState({ paperOpen: !st.paperOpen }),
+      infinite: inf,
+      paged: !inf,
+      islandTitle: inf ? 'Infinite canvas' : 'Page 12 of 18',
+      islandSub: inf ? 'about 2 × A4 so far · saved' : 'Saved · synced',
+      pageTop: inf ? '0px' : '84px',
+      pageLeft: inf ? '0px' : (200 + (840 - sz[0]) / 2) + 'px',
+      pageW: inf ? '1280px' : sz[0] + 'px',
+      pageH: inf ? '800px' : sz[1] + 'px',
+      pageRadius: inf ? '0px' : '6px',
+      pageShadow: inf ? 'none' : '0 2px 10px rgba(20,24,32,.08)',
+      pageBgImg: inf ? 'radial-gradient(var(--rule) 1.3px, transparent 1.6px)' : ruled,
+      pageBgSize: inf ? '28px 28px' : 'auto',
+      pageBgPos: inf ? '0 0' : '0 24px',
+      contentDx: inf ? '160px' : '0px',
+      contentDy: inf ? '84px' : '0px',
+      contentScale: inf ? '1' : (sz[0] / 840).toFixed(3),
       textMode: st.text,
       inkMode: !st.text,
       textModeStr: st.text ? 'true' : 'false',

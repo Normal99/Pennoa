@@ -112,5 +112,8 @@ export global Theme {
 6. Export to PDF
 7. Settings: sync, AI providers, recognition, pen, phone, appearance
 8. Design-system sheet
+9. Export layout: infinite canvas → pages, auto or manual
+
+The editor's paper picker offers A5, A4, A3, Letter, Custom and Infinite canvas. Infinite mode drops page edges and the page strip, and shows a dot grid and a minimap.
 
 The layout targets a 1280×800 landscape tablet posture (Yoga). Laptop posture uses the same layout with keyboard shortcuts. Narrow windows stack the side sheets as full-height overlays.

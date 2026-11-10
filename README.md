@@ -17,12 +17,12 @@ StudyInk targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a 
 ## What it does
 | Area | Feature |
 |---|---|
-| Notebooks | Subjects → notebooks → A4 or infinite pages; pen, highlighter, eraser, lasso, shapes; PDF underlays |
+| Notebooks | Subjects → notebooks → pages in A5/A4/A3/Letter/custom size or an **infinite canvas** (like OneNote); pen, highlighter, eraser, lasso, shapes; PDF underlays |
 | Handwriting → text | Three tiers: an instant model on the laptop that is personalised to *your* writing, a state-of-the-art open model running locally, and the cloud on demand. Math becomes LaTeX |
 | Selection menu | Lasso any ink and choose Cut · Copy · Paste · To text · **Ask AI** · **Calculate** · Flashcard |
 | Autocalculate | Unit-aware numbers (fend) plus a real CAS (Giac). The "verified" badge appears only for results the engine checked, never for unchecked AI output |
 | AI | Bring your own Claude API key or OpenRouter key (e.g. DeepSeek). Textbook PDFs serve as context via local retrieval |
-| PDF | Print-ready A4 export of your pages or an AI summary (typeset with Typst) |
+| PDF | Print-ready export of your pages or an AI summary (typeset with Typst). Infinite canvases are **auto-paginated** without cutting drawings or formulas, and you can adjust the layout by hand |
 | Scanner | Uses the Yoga's keyboard camera or your phone: edge detection, auto-capture, dewarping, enhancement, OCR, multi-page PDF |
 | Learning | AI-built learning paths from your textbook and notes, quizzes, FSRS flashcards, and a focus timer |
 | Phone | KDE Connect: phone camera → scan inbox, file and clipboard sharing, focus pings |

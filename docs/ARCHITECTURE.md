@@ -66,6 +66,7 @@ crates/
   si-math          LaTeX → AST, fend-core evaluation, Giac CAS through a C++ shim (cxx)
   si-ai            LLM providers (Anthropic, OpenRouter, local), retrieval (RAG), prompt library
   si-pdf           import (pdfium-render, hayro), export (krilla, typst)
+  si-layout        block clustering, reading order, auto/manual pagination of canvases
   si-scan          camera (ashpd + PipeWire), detection, dewarp, enhance, OCR, assembly
   si-learn         learning paths, quiz generation, FSRS scheduling, focus timer
   si-kdeconnect    zbus adapter for kdeconnectd
@@ -134,7 +135,12 @@ corrections/<device-ulid>.jsonl     Your handwriting corrections (training data 
 ```
 
 **Page document** (Automerge):
-- Size and paper (A4 portrait/landscape, or infinite), plus background (plain, ruled, grid or dots).
+- Paper (ADR-0009):
+  - fixed sizes: A5, A4, A3, Letter, Legal, or custom W×H mm, in portrait or landscape;
+  - or an **infinite canvas** that grows in every direction, like OneNote.
+  - The paper can be changed at any time without touching the ink.
+- Background: plain, ruled, grid or dots.
+- `print_layout` (optional): the saved pagination for export (see §10).
 - `strokes`: a map from ulid to `{ tool, colour, width, layer, bbox, points: bytes }`.
   - `points` packs `(x, y, pressure, tilt_x, tilt_y, t)` as delta + zig-zag varints, about 6 bytes per sample.
   - One stroke is one Automerge value, not one op per point, which keeps documents compact.
@@ -275,7 +281,32 @@ trait LlmProvider {
 - Keys are kept in the keyring.
 - A usage meter in the island shows tokens and cost per request.
 
-## 10. PDF (ADR-0006)
+## 10. PDF (ADR-0006) and pagination (ADR-0009)
+
+**Pagination engine** (`si-layout`): turns an infinite canvas, or a page of another size, into printable pages without cutting anything important.
+
+1. **Blocks.** Content is clustered into blocks:
+   - ink strokes are grouped by spatial proximity and timing, using the recognition regions;
+   - formulas, drawings, images, text boxes and user-made groups each count as a block.
+   - A drawing or formula is atomic.
+2. **Reading order.** Blocks are sorted into rows (y-overlap), then columns (x), so the text flows top-left to bottom-right.
+3. **Scale.** The content width is fitted to the printable width. The scale never drops below 70% by default; wider content suggests landscape, or tiles across pages.
+4. **Flow.** Rows are placed onto pages, keeping their positions relative to each other.
+   - If a block would cross a page break, the whole row moves to the next page.
+   - A block taller than a page is split only at an empty horizontal gap in the ink, or else scaled down.
+5. **Result.** A `print_layout` is stored in the notebook document: paper, scale, page breaks, and per-block page plus offset.
+   - It is **non-destructive**: the canvas itself never changes.
+   - It syncs like everything else.
+
+**Manual mode.**
+- You can drag blocks between pages, nudge or resize them, and drag page breaks.
+- Moved blocks become *pinned*, and a re-run of auto layout keeps pins and reflows everything else.
+- "Reset to auto" clears the pins.
+- The same engine re-paginates fixed pages into a different size (e.g. A4 notes printed on A5).
+
+**Coordinates.** Infinite canvases use 64-bit tile coordinates with f32 offsets inside each tile, so precision holds far from the origin. Tile rendering (§4) already works this way.
+
+
 
 - **Import and render:** `pdfium-render` (mature; dynamic `libpdfium`) by default. `hayro` (pure Rust) runs in a sandboxed worker thread with time and memory limits as an alternative.
 - **Export of pages:** vector ink through `krilla` (A4, plus an optional invisible text layer from recognition so PDFs are searchable).
