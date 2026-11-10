@@ -70,7 +70,9 @@ crates/
   si-scan          camera (ashpd + PipeWire), detection, dewarp, enhance, OCR, assembly
   si-learn         learning paths, quiz generation, FSRS scheduling, focus timer
   si-kdeconnect    zbus adapter for kdeconnectd
-  si-onenote       Microsoft Graph client (device-code OAuth)
+  si-onenote       OneNote import (onenote_parser) + Microsoft Graph client (OneNote, OneDrive, optional Teams/Education)
+  si-import        context-source pipeline: PDF, DOCX/PPTX/XLSX, OneNote, images → pages and/or AI context
+  si-platform      per-OS traits: pen backend, camera/scanner, keyring, notifications, share, IME, background tasks
   si-ipc           shared IPC protocol types
 apps/
   studyink         main app
@@ -359,6 +361,50 @@ Feature parity targets come from the survey of Adobe Scan, Genius Scan, the Goog
   - Throttling must be respected: 120 requests/min and 400 requests/hour per app per user, with no `Retry-After` header.
   - App-only auth is gone since 2025-03-31, which doesn't affect us.
 
+## 13b. Importing from OneNote and Teams (ADR-0010)
+
+Microsoft's APIs are the unreliable part, so the design leans on **files first** and treats the cloud APIs as optional extras.
+
+### Context sources
+Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/class files, scans and web pages. Everything in it is text-extracted and indexed for search and Ask-AI (§9).
+
+### OneNote: three routes, best first
+1. **File import (primary).** No sign-in or school-IT approval, and works on any OS.
+   - Accepts:
+     - `.one`/`.onetoc2` files from a OneDrive web download (ZIP);
+     - desktop `.one` files;
+     - `.onepkg` from OneNote for Windows → Export.
+   - The parser is **`onenote_parser`** 2.1 (MPL-2.0). It reads both the OneDrive (FSSHTTPB) and desktop formats, plus ink and math.
+   - **OneNote ink becomes real StudyInk ink**, so it is editable and recognisable. Text, images, tables and attachments are converted too.
+   - Re-importing updates pages by their OneNote object IDs instead of duplicating them.
+   - Protected and encrypted sections are skipped and reported.
+   - The parser is fuzzed, and file names inside the file are sanitised.
+2. **"Sign in with Microsoft", OneDrive download.**
+   - Uses `Files.Read` (user-consentable; works for both personal and school accounts) to list the user's own notebooks.
+   - Downloads the notebook package's `.one` files, then runs route 1.
+   - Avoids OneNote API throttling (400 requests/hour) and the 5,000/20,000-item SharePoint errors, and gets ink for free.
+3. **OneNote Graph API: shared and class notebooks.**
+   - Scopes: `Notes.Read` (personal), `Notes.Read.All` (school), `Team.ReadBasic.All` to find class teams, and `/groups/{id}/onenote` for group notebooks.
+   - Ink comes from the undocumented `includeInkML=true` parameter. It works today but is treated as best-effort.
+   - The import is incremental and resumable, with our own backoff for error 20166 and for 429 responses, which carry no `Retry-After` header.
+   - Pages are fetched section by section; the app never calls cross-notebook `/pages`.
+
+### Teams: honest scope
+- **Files** (class materials, handouts, slides) are ordinary SharePoint/OneDrive files. Students import them as files or a folder: PDF, DOCX, PPTX, XLSX and images. They can also share them from the phone via KDE Connect.
+- **Chats, assignments, transcripts:**
+  - Graph needs admin consent for channel messages, Education/Assignments and transcripts.
+  - Chat.Read and Files.Read.All are excluded by Microsoft's default consent policy.
+  - None of these APIs work for personal accounts.
+  - So the **"School connector" (assignments, class materials, channel files) is off by default** and only offered when the tenant has approved the app.
+  - Otherwise students copy and paste, and pasted Teams messages keep their formatting and links.
+
+### Sign-in and consent
+- **Auth:** the `oauth2` crate with authorisation code + PKCE and a loopback redirect (device code as fallback). Refresh tokens are kept in the keyring.
+- **Publisher verification.** Microsoft's default *risk-based step-up consent* turns an unverified app's request into "Need admin approval" in school tenants. The project therefore needs a **verified publisher**: a Microsoft AI Cloud Partner Program account owned by a legal entity, such as a small association or foundation.
+- **Bring your own client ID.** A setting lets school IT register their own app (single-tenant, so no step-up) and paste its client ID.
+- **Consent errors** (AADSTS65001/90094) show a friendly screen. It includes the admin-consent link to send to IT and points to the file route.
+- **School lock-down.** Some school tenants block all third-party apps (e.g. School Data Sync's Conditional Access option). Then only the file routes work, and the UI says so plainly.
+
 ## 13a. Internationalisation (UI)
 - UI strings use **Project Fluent** (`fluent-rs`) `.ftl` files. **English and Norwegian (nb, nn) ship first**; translations are community-maintained afterwards (Weblate).
 - **Fonts:** Inter for Latin, Greek and Cyrillic. The **Noto** family covers all other scripts, as bundled fallbacks or system fonts via fontconfig.
@@ -375,6 +421,27 @@ Feature parity targets come from the survey of Adobe Scan, Genius Scan, the Goog
   - All file parsers are fuzzed (`cargo-fuzz`).
 - **Secrets** live only in the keyring. API keys never appear in logs or the repository.
 - **Encryption at rest on remotes** is optional, via `age`.
+
+## 14b. Platforms (ADR-0011)
+
+| Platform | Verdict | Main work |
+|---|---|---|
+| **Linux** (KDE Plasma, Wayland) | First | — |
+| **Windows** | Phase 9 | WM_POINTER pen comes from winit 0.31; keyring store; SFTP replacement |
+| **macOS** | Feasible, low risk | Own NSEvent hook for Wacom pressure and tilt (winit 0.31 has none on macOS); Input Method Kit for handwriting in other apps; notarised DMG and Homebrew, **not** the Mac App Store |
+| **Android** | Feasible, medium effort, easiest licensing (Google Play and F-Droid accept GPL) | Own stylus input via `android-activity` (winit drops stylus pressure and tilt); front-buffered low-latency renderer and motion prediction through JNI; CameraX/SAF through JNI; **handwriting IME is feasible** with the Android 14+ stylus-handwriting APIs |
+| **iPadOS** | Feasible, but high effort and licensing risk | Patch winit or write our own UIView for coalesced and predicted Pencil touches (needed to get within ~4 ms of PencilKit); own CADisplayLink for 120 Hz; VisionKit scanner through a Swift shim; foreground-first sync; **no system-wide handwriting keyboard**, since keyboard extensions get ~30–70 MB of RAM, too little for ML |
+| **iOS (iPhone)** | Companion only | Viewer, flashcards, focus timer, phone scanner |
+
+Design rules from now on, so these ports stay possible:
+- **All OS-specific code lives behind `si-platform` traits:** pen input backend, camera and document scanner, keyring, notifications and DND, share, IME, background tasks, file picker.
+- `zbus`, `ashpd` and other Linux-only crates are only used inside the Linux implementation. Nothing in the core crates assumes Linux.
+- **ML uses llama.cpp as the portable runtime.** It runs on Metal (Apple), Vulkan/OpenCL (Android) and CPU. Model packs declare minimum RAM, and the app checks available memory before loading (iPhone has a ceiling of about 6 GB).
+- **Licensing for Apple stores** (ADR-0011). GPL-3 conflicts with App Store terms. The plan, while the project still has few contributors:
+  - add a GPL-3 §7 *additional permission* allowing App Store distribution, as KDE Connect for iOS does;
+  - add a second permission allowing Slint under its Royalty-free licence on iOS;
+  - collect contributor agreement to both (CLA or DCO plus an inbound statement).
+- **Giac on iOS** needs a commercial licence from its author (PocketCAS does this), or iOS builds fall back to fend plus a different solver.
 
 ## 15. Quality and tooling
 

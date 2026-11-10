@@ -14,10 +14,16 @@ Each phase ends with measurable exit criteria. Phases 5–8 can overlap once Pha
 | **7 · Learning** | Learning paths from textbook + notes, quizzes (structured outputs), flashcards with FSRS, focus timer in the island, statistics widgets | A path is generated for a real textbook chapter; review scheduling matches fsrs reference tests |
 | **8 · Integrations** | `studyink-ime` Plasma virtual keyboard; OneNote upload; KDE Connect polish (pings, clipboard, send PDF) | Handwriting typed into Firefox, Kate and LibreOffice; OneNote page created on a personal account within throttling limits |
 | **8b · Languages** | UI and recognition beyond nb/nn/en in waves: (1) other Latin-script European languages, (2) Cyrillic and Greek, (3) Arabic and Hebrew with RTL layout, (4) Devanagari and other Indic scripts, (5) CJK | Each language ships only when its evaluation CER meets target and its UI translation is complete |
+| **8c · Import** | OneNote file import (onenote_parser: OneDrive ZIP, .one, .onepkg, ink → StudyInk ink); "Sign in with Microsoft" OneDrive download; OneNote Graph for shared/class notebooks; DOCX/PPTX/XLSX import; optional School connector (Teams files/assignments, admin-approved tenants only) | A 1,000-page OneNote notebook imports with ink intact; Graph import resumes after throttling without duplicates; consent-blocked tenants get a clear file-route fallback |
 | **9 · Windows** | WM_POINTER pen via winit, Windows keyring store, OpenDAL SFTP replacement, MSIX/winget packaging | Phase 1 exit criteria hold on Windows 11 |
+| **10 · macOS** | NSEvent tablet backend, Metal, Input Method Kit, notarised DMG/Homebrew | Phase 1 criteria on Apple Silicon with a Wacom tablet |
+| **11 · Android** | android-activity stylus backend, front-buffered rendering via JNI, CameraX, SAF, stylus-handwriting IME; Google Play + F-Droid | ≤ 25 ms pen-to-pixel on a recent Android tablet; reproducible F-Droid build |
+| **12 · iPadOS (+ iPhone companion)** | Pencil backend with coalesced/predicted touches, CADisplayLink, VisionKit scanner shim, App Store licensing in place | Within 5 ms of PencilKit latency; App Store review passed |
 
 ## Open questions
 1. **Project name:** "StudyInk" is a placeholder; a name search is needed before the first release.
 2. **Hardware for Tier B personalisation:** does the target laptop have a discrete GPU, or only an iGPU?
 3. **Google Drive OAuth client:** the project needs its own Google Cloud OAuth client, which requires Google verification for the Drive scope.
 4. **IME under Flatpak:** can KWin launch a Flatpak-ed input method, or is a host package needed?
+5. **Legal entity:** a small association or foundation is needed for Microsoft publisher verification (OneNote/Teams sign-in in schools) and an Apple developer account.
+6. **App Store licence permission:** confirm adding the GPL-3 §7 App Store and Slint permissions now, before outside contributors join (ADR-0011).

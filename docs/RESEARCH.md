@@ -103,6 +103,48 @@ All facts were checked against primary sources (crates.io/docs.rs, upstream repo
 - DocTr, D2Dewarp: licence **[unconfirmed]**.
 - No open finger-removal model exists.
 
+## 6a. OneNote and Teams import (verified 2026-11-10 against Microsoft Graph and Entra doc sources on GitHub)
+
+**OneNote via Graph**
+- `Notes.Read` and `Notes.Read.All` (delegated) need **no admin consent**, and Microsoft's default consent policy doesn't exclude them.
+- App-only access was retired on 2025-03-31.
+- Throttling: 120 requests/min, 400/h and 5 concurrent per app per user. A 429 has **no `Retry-After`**, and 20166 is the throttling code.
+- Errors 10008/10013 mean a SharePoint library holds more than 5,000/20,000 items. 20266 means a cross-notebook `/pages` call hit too many sections.
+- `includeInkML=true` is undocumented, but the Obsidian Importer uses it in production.
+
+**Teams via Graph**
+- Admin consent is required for `ChannelMessage.Read.All`, all `Edu*` scopes and transcripts/recordings.
+- `Chat.Read`, `Files.Read.All`, `Sites.Read.All` and `OnlineMeetings.Read` are excluded by the default policy (Secure by Default, MC1163922).
+- None of these APIs work for personal accounts. The export APIs are application-only and protected.
+
+**Consent**
+- *Risk-based step-up consent* is on by default. It sends unverified multitenant apps to admin approval.
+- Publisher verification requires a Microsoft AI Cloud Partner Program account, which in practice means a legal entity.
+- School Data Sync can block all third-party apps with a Conditional Access policy.
+
+**Files route**
+- **`onenote_parser` 2.1.0 (2026-10-19, MPL-2.0)** reads OneDrive FSSHTTPB and desktop `.one`/`.onetoc2` files, plus `.onepkg`, ink and math.
+- Joplin and Obsidian both use this route; Joplin's parser is a fork of it.
+- Known issue: an occasional "Malformed OneStore data" error.
+
+## 6b. Other platforms (verified 2026-11-10)
+
+- **Slint 1.18:** iOS and Android are documented platforms. Its Royalty-free 2.0 licence covers mobile.
+- **winit 0.31 pen support:**
+  - iOS: Pencil force, altitude and azimuth, but no coalesced or predicted touches.
+  - **macOS: none** (only `TouchpadPressure`).
+  - **Android: stylus pressure and tilt dropped.**
+- **wgpu:** Metal and Vulkan are first-class. vello_gpu needs no compute shaders, which suits mobile GPUs.
+- **Apple distribution and GPL-3:**
+  - Apple's terms still conflict with GPL-3; VLC was pulled from the App Store in 2011.
+  - KDE Connect iOS ships GPL-3 on the App Store with a copyright-holder non-enforcement permission.
+  - Alternative iOS distribution is available in the EU, Japan and Brazil only. **Norway is not confirmed to be included.**
+- **Android stores and verification:** Google Play and F-Droid are fine for GPL. Google's sideloading developer verification started Sept 2026 in four countries, with a global rollout expected in 2027 or later.
+- **Giac:** a commercial (dual) licence exists, which PocketCAS on the App Store uses.
+- **Memory:** iOS keyboard extensions get ~30–70 MB of RAM, so an ML handwriting keyboard isn't possible there. Android 14+ has stylus-handwriting IME APIs.
+- **llama.cpp:** has an iOS XCFramework and Android builds. Qwen3.5-2B decodes at about 39 tok/s on an iPhone 17 Pro (community figure).
+- **KDE Connect:** available on Android, iOS/iPadOS and macOS (App Store), and Windows.
+
 ## 6. Design reference: ColorOS 17
 - Launched Oct 2026. Its design language is described as "Fluid Design" / "Living Flow". The main material is "liquid acrylic": frosted glass, contour glow and progressive blur.
 - It also has a global floating island, floating navigation bars, fully circular toggles and "Elastic Feedback" motion.
