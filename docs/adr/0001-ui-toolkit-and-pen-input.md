@@ -1,26 +1,24 @@
 # ADR-0001: UI toolkit and pen input
 
-- Status: accepted (pending Phase 0 spike)
-- Date: 2026-11-10
+- Status: accepted. Revised 2026-11-25; the original 2026-11-10 decision is kept as fallback (b).
+- Date: 2026-11-25
 
 ## Context
-- The user chose a pure-Rust UI.
-- Slint 1.18 gives no pen pressure or tilt, and its winit backend uses 0.30, which has no tablet events.
-- winit 0.31 (beta) delivers full pen data on Wayland and Windows.
-- egui also lacks tablet support.
+- The user chose a pure-Rust UI: Slint.
+- Slint (1.19) has no pen pressure or tilt, and its winit backend uses winit 0.30, which has no tablet events. winit 0.31 (beta) has pen data.
+- **New finding:** Slint's screen-reader support (AccessKit) only exists inside its winit backend. A custom `slint::platform::Platform` gets no accessibility, because the tree APIs aren't public.
+- Accessibility is a project goal.
 
 ## Decision
-- The app owns a **winit 0.31** event loop and runs **Slint as a custom platform**:
-  - Tablet events go to our ink engine.
-  - Other input is forwarded to Slint.
-- Rendering shares one wgpu surface:
-  - vello_gpu draws page tiles.
-  - A dedicated wet-ink pipeline draws the stroke in progress.
-  - Slint UI is composited on top through its wgpu integration, pinned `~1.18`.
+- **Window:** keep Slint's **winit backend** and hook into it with `slint::winit_030::Backend::builder().with_custom_application_handler()`, which sees every event before Slint.
+- **Pen input on Wayland:** our own `zwp_tablet_v2` listener on Slint's `wl_display`, delivering pressure, tilt, rotation, eraser, buttons and hover. Other OSes get per-platform pen backends in `pn-platform`.
+- **When Slint adopts winit ≥ 0.31:** switch to winit's native `TabletTool` events through the same handler.
+- **Rendering:** one wgpu surface, with vello tiles + a wet-ink pipeline under the Slint UI (`set_rendering_notifier`). Pin a single Slint minor version (start with 1.19).
 
 ## Consequences
-- We maintain a small platform layer (window adapter, event translation, hit routing).
-- X11 gets mouse-only input until winit supports XInput2 tablets.
-- Fallbacks if the spike fails:
-  - (b) Slint's own backend plus a raw `zwp_tablet_v2` listener on the same Wayland display;
-  - (c) egui once it ports to winit 0.31.
+- Accessibility, IME and touch come from Slint, maintained upstream.
+- We maintain a small Wayland tablet listener (~1 crate) until Slint moves to winit 0.31.
+- X11: mouse-only pen until winit supports XInput2 tablets.
+- Fallbacks:
+  - (b) Slint custom platform on winit 0.31, wiring AccessKit ourselves;
+  - (c) egui on winit 0.31.

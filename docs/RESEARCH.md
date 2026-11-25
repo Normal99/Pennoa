@@ -163,3 +163,77 @@ Consequences:
 - Pennoa's handwriting IME uses input-method-v2 with a layer-shell pad.
 - Desktop integrations that are KDE-specific (KWin virtual keyboard, KWallet, notification inhibition, tablet-mode D-Bus) need Hyprland equivalents: input-method-v2, gnome-keyring/KeePassXC Secret Service, mako/dunst/swaync DND commands, and `bindl` switch events.
 - Source: https://github.com/hyprwm/Hyprland/tree/main/src/protocols
+
+## 8. School platforms in Norway (verified 2026-11-25)
+- **InSchool (formerly Visma InSchool):**
+  - No public student API, no OAuth/consent path, and no official student ICS export. A ~3-year-old Visma Community thread said calendar sync was "on the drawing board".
+  - The only official integration is a **OneRoster** API for school IT (for Microsoft School Data Sync), and it covers rosters, not timetables.
+  - Community tools reuse the student's own session against `<school>.inschool.visma.no`: `inschool-tui` (most complete: lessons, assessments, attendance), `inschool-to-ical`, `inschool-absence`, and a PDF→ICS parser.
+  - These are unofficial and unstable, and may breach the terms of service.
+  - Sources: [OneRoster/SDS](https://inschool.zendesk.com/hc/no/articles/15780948772113), [inschool-tui](https://github.com/Euler2718e/inschool-tui), [inschool-to-ical](https://github.com/FilipNilsen/inschool-to-ical), [community thread](https://community.visma.com/t5/Diskusjonsforum-for-Visma/Gjentagende-avtale-i-Visma-InSchool/m-p/677127).
+- **Feide:**
+  - The `groups-edu` attribute gives basis and teaching groups plus subject codes (no schedule).
+  - It needs Feide Kundeportal access, acceptance of Feide's provider terms, and activation by the county or school.
+  - Sources: [Feide groups API](https://docs.feide.no/reference/apis/groups_api/group_types/pse_teaching.html), [activation per school](https://www.feide.no/nyhet/grunnopplaering-na-kan-du-aktivere-og-gi-tilgang-til-tjenester-pa-skoleniva).
+- **Other platforms:**
+  - **itslearning:** a student-subscribable iCal feed; its API is for partners only.
+  - **iSkole:** students can use iCal sync.
+  - **Canvas:** personal access tokens, unless an admin disables them.
+  - **Google Classroom:** needs a verified OAuth app, and is often blocked for under-18s.
+  - **Teams Assignments:** needs admin consent.
+
+## 9. Rnote and Xournal++ (prior art)
+| | Rnote 0.14.2 (May 2026) | Xournal++ 1.3.8 (Sep 2026) | Pennoa |
+|---|---|---|---|
+| Stack | Rust + GTK4, cairo/piet | C++20 + GTK3, cairo, poppler | Rust + Slint + wgpu/vello |
+| Licence | GPL-3.0-or-later | GPL-2.0-or-later | GPL-3.0-or-later + §7 permissions |
+| Canvas | Fixed pages, continuous, infinite | Pages | Any paper size + infinite + auto-pagination |
+| Audio | — | Recording linked to strokes | Recording + stroke sync + local transcription |
+| Handwriting → text, math, AI, sync, learning, planner | — | — (LaTeX tool, Lua plugins) | Core features |
+| File format | gzip JSON, unstable across versions | gzip XML (`.xopp`), undocumented | Documented, versioned (`docs/FORMAT.md`) |
+| Platforms | Linux, Windows, macOS (community) | Linux, Windows, macOS | Linux first; Windows, macOS, mobile later |
+
+Notes:
+- **Reuse:**
+  - Rnote's code can't go into Pennoa builds without voiding Pennoa's §7 permissions (App Store, Slint royalty-free). Rnote's copyright holders never granted them.
+  - Reuse Rnote's *permissive dependencies* instead: ink-stroke-modeler-rs, kurbo, hayro, parry2d.
+  - Learn from Rnote's versioned format-upgrade chain and its engine/UI split.
+- **Import:**
+  - `.xopp`: write our own quick-xml + flate2 parser (simple, stable).
+  - `.rnote`: export through `rnote-cli` instead of parsing.
+- Sources: [Rnote](https://github.com/flxzt/rnote), [Rnote Cargo.toml](https://raw.githubusercontent.com/flxzt/rnote/main/Cargo.toml), [Xournal++](https://github.com/xournalpp/xournalpp), [Xournal++ changelog](https://raw.githubusercontent.com/xournalpp/xournalpp/master/CHANGELOG.md).
+
+## 10. Speech-to-text and audio
+- **NB-Whisper (NbAiLab):**
+  - Tiny 39M → Large 1.55B, **Apache-2.0**, ships whisper.cpp `ggml` files.
+  - Bokmål FLEURS WER 6.6% vs 10.4% for OpenAI large-v3 (paper).
+  - Its output is normalised written Bokmål/Nynorsk, and the small models can hallucinate.
+  - Sources: [repo](https://github.com/NbAiLab/nb-whisper), [paper](https://arxiv.org/abs/2402.01917).
+- **NB Nordlyd 0.6B** (Qwen3-ASR based, Apache-2.0, Nov 2026 preview): Bokmål/Nynorsk plus mixed Norwegian/English. Needs a separate aligner for timestamps.
+- **No Norwegian listed** for Parakeet/Canary v2 (CC-BY-4.0, 25 EU languages incl. Danish and Swedish), Voxtral or Kyutai STT.
+- **Runtimes:**
+  - `whisper-rs` 0.16 (Unlicense, now on Codeberg);
+  - official `sherpa-onnx` crate 2.0.3 (Apache-2.0: Whisper, VAD, streaming);
+  - candle Whisper example.
+- **Audio:**
+  - `cpal` 0.18 has a native PipeWire host;
+  - `pipewire` crate 0.10.1 (MIT);
+  - `opus` crate 0.4.0 (MIT/Apache, libopus BSD) plus `ogg`.
+
+## 11. Accessibility with Slint
+- Slint 1.18/1.19: AccessKit (accesskit_unix → AT-SPI) **only in the winit backend**. A custom Platform gets no accessibility tree. → ADR-0001 revised to keep the winit backend, using `slint::winit_030` `CustomApplicationHandler`.
+- Slint **1.19.1** (2026-11-24) is current, with accessibility fixes.
+- **Orca on Wayland** needs the compositor's keyboard monitor (`org.freedesktop.a11y.KeyboardMonitor`). KWin 6.4+ and Mutter 48+ have it; wlroots compositors lack it, and there's no evidence Hyprland has it. → Test screen readers on Plasma.
+- Sources: [CustomApplicationHandler](https://docs.slint.dev/latest/docs/rust/slint/winit_030/trait.CustomApplicationHandler), [Slint changelog](https://github.com/slint-ui/slint/blob/master/CHANGELOG.md).
+
+## 12. Test hardware: ThinkPad X1 Yoga (the maintainer's only device)
+- **No keyboard-side (world-facing) camera** is listed for X1 Yoga Gen 6–8 or X1 2-in-1 Gen 9/10. They have a front FHD + IR camera only. → The scanner primarily uses the phone via KDE Connect (§11 in ARCHITECTURE).
+- **Pen:**
+  - Gen 7/8: garaged, rechargeable Lenovo Integrated Pen (4096 levels).
+  - X1 2-in-1 Gen 9+: magnetic Lenovo Slim Pen (multi-protocol: AES 2.0 / MPP 2.0 / WGP).
+- **Camera:** Gen 8 may have an Intel IPU6 MIPI camera, which needs libcamera; plain V4L2 apps can't see it.
+- **Auto-rotate:** via iio-sensor-proxy (Hyprland needs a helper such as iio-hyprland).
+- **Tablet mode:** a switch input usable in Hyprland binds. Since Hyprland 0.55 there is also a Lua config form.
+- **Known issue:** a 2025/26 kernel regression in hid-multitouch broke pen and touch on one Gen 8 (ELAN 04F3:31F9).
+- **Day-one checklist:** `sudo dmidecode -s system-version`, `libinput list-devices`, `libinput debug-tablet`, `v4l2-ctl --list-devices`, `monitor-sensor`, `hyprctl devices`.
+- Sources: [PSREF Gen 7](https://psref.lenovo.com/syspool/Sys/PDF/ThinkPad/ThinkPad_X1_Yoga_Gen_7/ThinkPad_X1_Yoga_Gen_7_Spec.html), [ArchWiki Gen 8](https://wiki.archlinux.org/title/Lenovo_ThinkPad_X1_Yoga_(Gen_8)), [Fedora report](https://discussion.fedoraproject.org/t/touchscreen-stylus-and-auto-screen-rotation-stopped-working-thinkpad-x1-yoga-gen-8/177074), [Hyprland binds](https://wiki.hypr.land/Configuring/Basics/Binds/).

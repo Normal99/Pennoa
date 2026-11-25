@@ -56,9 +56,9 @@ Why a separate ML process:
 crates/
   pn-core          domain model, commands, undo/redo, app event bus (no UI, no IO)
   pn-ink           stroke model, smoothing, prediction, hit-testing, lasso, geometry (kurbo)
-  pn-input         pen/touch/mouse from winit 0.31, palm rejection, pressure curves
+  pn-input         pen (tablet-v2 / per-OS backends), touch, mouse; palm rejection, pressure curves
   pn-render        wgpu + vello_gpu renderer, page tile cache, wet-ink layer, thumbnails
-  pn-ui            Slint components (.slint) + custom Slint platform on winit
+  pn-ui            Slint components (.slint) + winit application handler + Wayland tablet-v2 listener
   pn-store         file format, Automerge pages, content-addressed assets, SQLite index
   pn-sync          OpenDAL backends, sync engine, snapshots, age encryption
   pn-recognize     tiers, scheduler, model registry, correction store (client side of pennoa-ml)
@@ -90,34 +90,36 @@ Rule: `pn-core`, `pn-ink`, `pn-store`, `pn-math`, `pn-learn` and `pn-ai` never d
 
 ## 4. UI, input and rendering (highest-risk area)
 
-**The problem** (see [RESEARCH.md §1](RESEARCH.md#1-ui-input-rendering)):
-- Slint 1.18 does not expose pen pressure or tilt.
-- Its winit backend is still on winit 0.30, which has no tablet events.
-- winit 0.31 (currently beta.4) has full pen data on Wayland and Windows, but none on X11.
+**The problem** (see [RESEARCH.md §1 and §11](RESEARCH.md)):
+- Slint (1.19) does not expose pen pressure or tilt, and its winit backend still uses winit 0.30, which has no tablet events.
+- winit 0.31 (beta) has pen data on Wayland and Windows, but only works with Slint if Slint runs as a fully *custom platform*.
+- **A custom platform loses accessibility.** Slint's AccessKit integration (screen readers) lives only inside its winit backend, and the tree APIs are not public.
 
-**The design (ADR-0001):** Pennoa owns the window and event loop.
+**The design (ADR-0001, revised 2026-11-25):** keep **Slint's own winit backend** and read the pen ourselves.
 
 1. **Window and events.**
-   - The app runs **winit 0.31** directly.
-   - Slint runs as a *custom platform* (`slint::platform::Platform` + `WindowAdapter`).
-   - Keyboard, mouse, touch and IME events are forwarded into Slint with `dispatch_event`.
-   - `PointerSource::TabletTool` events (pressure, tilt, twist, eraser) go straight to `pn-input`, then `pn-ink`, never through Slint.
+   - Slint's winit backend runs the window, so accessibility, IME, touch and keyboard work out of the box.
+   - We hook in with `slint::winit_030::Backend::builder().with_custom_application_handler(…)`. That sees every winit event before Slint and can swallow canvas input.
+   - **Pen input on Wayland** comes from our own `zwp_tablet_v2` listener (`wayland-protocols` 0.32), bound on Slint's `wl_display` via `WinitWindowAccessor` / raw-window-handle. It delivers pressure, tilt, rotation, eraser end, side buttons, proximity (hover) and frame-grouped samples to `pn-input` → `pn-ink`. The listener's events never reach Slint.
+   - **Windows / macOS / mobile** use per-platform pen backends in `pn-platform` (WM_POINTER, NSEvent tablet events, UITouch, Android MotionEvent).
+   - **Upgrade path:** when Slint moves to winit ≥ 0.31, the Wayland listener is replaced by winit's `PointerSource::TabletTool` events from the same application handler, with no other changes.
 2. **Hit routing.** A pen-down event goes to the ink engine if it lands on the canvas and not on a Slint overlay. Slint reports overlay rectangles each frame (toolbar, island, capsule, sheets).
 3. **Rendering into one wgpu surface, back to front:**
-   1. Page background and *committed* ink. These are rendered by **vello_gpu** into cached 512 px tiles per zoom level and only re-rendered when they change.
+   1. Page background and *committed* ink. These are rendered by **vello** (0.12, or vello_gpu once it stabilises) into cached 512 px tiles per zoom level and only re-rendered when they change.
    2. **Wet ink.** The stroke in progress (plus predicted points) is drawn every frame as a tessellated triangle strip by a tiny dedicated wgpu pipeline. This keeps the latency-critical path free of vector rasterisation. On pen-up the stroke is committed and its tiles are invalidated.
-   3. **Slint UI**, composited on top through Slint's wgpu integration (`unstable-wgpu-30`, pinned `~1.18`).
+   3. **Slint UI**, rendered through Slint's wgpu integration (`unstable-wgpu-*`, pinned to one Slint minor) with `set_rendering_notifier` drawing our layers underneath.
+   - Smoothing uses **ink-stroke-modeler-rs** (MIT/Apache, the same modeller Rnote uses), with kurbo for geometry.
 4. **Latency tricks:**
    - Request redraws on input, not on a timer, using the `Mailbox`/`Fifo` present mode chosen by measurement.
    - Predict 1–2 frames of pen motion with a Kalman filter.
-   - Read input from coalesced/historical samples.
+   - Use every tablet sample in a `frame` group, not just the last.
    - Use the Wayland `wp_presentation` feedback to measure real latency in `pn-bench`.
    - **Tearing control.** While a pen stroke is in progress, ask for asynchronous page flips with `wp_tearing_control_v1` (hint `async`). This cuts up to a frame of latency.
      - Hyprland honours it when `general:allow_tearing = true` and a window rule marks Pennoa as `immediate`. We ship a config snippet for that.
      - The app falls back to `Fifo` when tearing isn't allowed.
      - Also use `wp_fifo_v1`/`wp_commit_timing_v1` where available.
 5. **Fallbacks**, if the Phase 0 spike fails:
-   - (b) Slint's own winit backend for the UI, with a raw `zwp_tablet_v2` listener (wayland-protocols) bound on the same `wl_display`.
+   - (b) Slint as a custom platform on winit 0.31. This gives native pen events, but we would have to wire AccessKit ourselves through unstable Slint internals.
    - (c) egui on winit 0.31 once egui's port lands.
 6. **X11:** a mouse-only fallback (no pressure) until winit gains XInput2 tablet support. Hyprland is Wayland-only and Plasma 6 defaults to Wayland, so this is acceptable.
 7. **Compositors.** Pennoa uses only standard Wayland protocols, verified in Hyprland's source on 2026-11-10:
@@ -128,7 +130,7 @@ Rule: `pn-core`, `pn-ink`, `pn-store`, `pn-math`, `pn-learn` and `pn-ai` never d
    So it works on Hyprland and KDE Plasma, and should work on other wlroots-style compositors (Sway, niri, river). GNOME/Mutter is best-effort.
 
 **Ink pipeline.**
-- Raw samples go through One-Euro filter smoothing, then into a variable-width outline.
+- Raw samples go through the stroke modeller (smoothing + prediction), then into a variable-width outline.
 - Strokes are stored raw and smoothed at render time, so smoothing can be changed later without touching saved data.
 - Pressure → width mapping uses a configurable curve.
 - Palm rejection: while a pen is in proximity (hover), touch is ignored. Large contact areas are also rejected.
@@ -377,7 +379,7 @@ trait LlmProvider {
 
 | Stage | Implementation |
 |---|---|
-| Capture | `ashpd` Camera portal + PipeWire stream (keyboard-side world camera); phone photos via KDE Connect `shareReceived` |
+| Capture | **Phone camera via KDE Connect** (`shareReceived`), the primary route because many 2-in-1s, including the ThinkPad X1 Yoga, have no keyboard-side camera; the laptop's front camera (folded into tablet posture) or a world-facing camera through the `ashpd` Camera portal + PipeWire, which needs libcamera for Intel IPU6 MIPI cameras |
 | Detect | Document quad by edge and line detection (classic CV in Rust); auto-capture when the quad is stable for 600 ms |
 | Rectify | Perspective warp; **UVDoc** (MIT, ONNX) for curved pages and book mode; two-page split |
 | Enhance | Modes: colour, greyscale, B/W, whiteboard. **DocRes** (MIT) for shadow removal and deblur; classic CLAHE as the fast path |
@@ -404,6 +406,48 @@ Feature parity targets come from the survey of Adobe Scan, Genius Scan, the Goog
   - During focus, `idle-inhibit` keeps the screen awake while reading.
   - The phone gets a KDE Connect ping at start and end. Phone DND itself can't be controlled over KDE Connect's D-Bus API.
   - Statistics feed the Home widgets.
+
+## 12b. Planner and timetable (`pn-planner`, ADR-0013)
+
+**What it does**
+- **Timetable:** "Physics now, room 204", and the right notebook opens automatically when class starts.
+- **Homework, tests and exam dates:**
+  - Lasso handwritten "lekse til fredag: oppg. 3.12–3.18" (homework for Friday: exercises 3.12–3.18) and choose **Add as homework**. The date and task are parsed from the recognised text.
+  - Due items appear in the Home widgets and the floating island, with reminders.
+  - **Exam dates drive the learning path:** spaced revision is planned backwards from the test date, and the focus timer suggests what to study next.
+
+**Getting the data in** (Norwegian schools have no student-usable API)
+
+| Route | Works for | Notes |
+|---|---|---|
+| **Manual entry + AI import** | Everyone | Screenshot or PDF of the timetable or week plan (InSchool, itslearning, a teacher's handout) → the local vision model (Tier B) or a cloud model extracts lessons, homework and dates → you confirm |
+| **ICS / webcal subscription** | itslearning ("Subscribe to iCal"), iSkole, Canvas calendar feed, Outlook/Teams published calendars, Google Calendar | A secret read-only URL, refreshed periodically |
+| **InSchool (Visma) — experimental** | InSchool schools, including the maintainer's | No public API or ICS for students. An opt-in, **read-only**, clearly "unofficial" connector would reuse *your own* logged-in session against InSchool's internal web API (as community tools such as `inschool-tui` do). It stays local, may break at any time, and may conflict with school or county IT rules. **Off by default** |
+| **Feide groups** (later) | Schools whose county activates Pennoa in Feide Kundeportal | Gives your subjects and teaching groups (not the timetable), so subject notebooks can be created automatically |
+| **Canvas** (universities) | Where personal access tokens are allowed | Assignments and due dates via REST |
+
+## 12c. Lecture recording (`pn-audio`, ADR-0014)
+
+Record a lecture while writing. Tap any stroke later to hear what was being said at that moment, or replay the page with ink and audio together.
+
+- **Capture:**
+  - `cpal` 0.18 with its native PipeWire host on Linux.
+  - Speech-tuned **Opus** (`opus` crate, ~24 kbit/s ≈ 11 MB/hour) in Ogg, written in 1-minute chunks so a crash loses at most seconds.
+  - Chunks are content-addressed assets (§5). A setting excludes recordings from sync to save cloud space.
+- **Sync with ink:** every stroke already stores timestamps (§5). A recording session records its start on the same monotonic clock, so stroke → audio offset is exact. A stroke written during the lecture shows a small play marker.
+- **Playback:**
+  - Tap a stroke to seek, with a scrubber in the island.
+  - "Replay" mode redraws strokes in sync with the audio.
+  - Speed 0.75×–2×.
+- **Transcription** (local, in `pennoa-ml`):
+  - **NB-Whisper** (National Library of Norway, Apache-2.0, tiny → large, whisper.cpp-ready) for Norwegian Bokmål/Nynorsk, and Whisper for English. Run via `whisper-rs`, or via the `sherpa-onnx` crate with voice-activity detection.
+  - Candidate to benchmark: NB's new **Nordlyd** 0.6B (Qwen3-ASR based, Apache-2.0, preview), which also handles mixed Norwegian and English.
+  - Small models run on CPU while recording; larger models re-transcribe in the background when the laptop is charging.
+- **Uses:**
+  - Transcripts are time-aligned, searchable (FTS) and part of the AI context.
+  - "Summarise this lecture" combines your notes and the transcript.
+  - Missed sentences can be inserted as typed text next to your ink.
+- **Courtesy:** a red recording dot is always visible in the island. On first use, Pennoa reminds you to ask the teacher before recording.
 
 ## 13. Integrations
 
@@ -487,7 +531,7 @@ Your notes must outlive Pennoa.
 | Direction | Formats |
 |---|---|
 | **Export** | PDF (vector ink + searchable text layer); **Markdown + SVG** (one `.md` per page, ink as SVG, math as LaTeX); HTML (self-contained); **DOCX** (recognised text + ink images); **InkML** (W3C standard for digital ink: strokes with pressure and timing); PNG/JPEG; plain text and LaTeX; **Xournal++ `.xopp`**; OneNote (upload via Graph) |
-| **Import** | OneNote (§13b); **Xournal++ `.xopp`**; **Rnote `.rnote`**; InkML; PDF (annotate on top); DOCX/PPTX/XLSX (as context and pages); images and scans; Markdown |
+| **Import** | OneNote (§13b); **Xournal++ `.xopp`** (our own gzip-XML parser, including Xournal++'s audio links); **Rnote `.rnote`** (via `rnote-cli` export, so no Rnote code enters Pennoa, see ADR-0011); InkML; PDF (annotate on top); DOCX/PPTX/XLSX (as context and pages); images and scans; Markdown |
 | **Bulk** | "Export everything": the whole library to a folder of Markdown + SVG + PDF in one click, also scheduled as part of backups (§6) |
 
 ## 13a. Internationalisation (UI)
@@ -516,7 +560,8 @@ Pennoa is a free, open-source tool, not a product that collects data. It simply 
 
 - **Screen readers:**
   - Slint's accessibility tree is exposed via AccessKit: AT-SPI and Orca on Linux, later UIA, NSAccessibility and Android.
-  - Because Pennoa runs Slint as a custom platform, the AccessKit adapter is wired up in our own event loop.
+  - Because Pennoa keeps Slint's winit backend, AccessKit works out of the box (ADR-0001).
+  - **Testing:** Orca reads the AT-SPI tree on any desktop. However, Orca's keyboard commands need the compositor's keyboard-monitor interface, which KWin (Plasma 6.4+) has and wlroots-style compositors, apparently including Hyprland, lack. **Screen-reader testing therefore happens on KDE Plasma.**
   - The canvas exposes **recognised text** of each ink region, so handwritten notes are readable aloud.
 - **Keyboard:**
   - Every function is reachable from the keyboard, with a visible focus ring and shortcuts for every tool.
