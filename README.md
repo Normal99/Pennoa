@@ -23,7 +23,7 @@ Pennoa targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a ke
 | Autocalculate | Unit-aware numbers (fend) plus a real CAS (Giac). The "verified" badge appears only for results the engine checked, never for unchecked AI output |
 | AI | Bring your own Claude API key or OpenRouter key (e.g. DeepSeek). Textbook PDFs serve as context via local retrieval |
 | PDF | Print-ready export of your pages or an AI summary (typeset with Typst). Infinite canvases are **auto-paginated** without cutting drawings or formulas, and you can adjust the layout by hand |
-| Scanner | Uses the Yoga's keyboard camera or your phone: edge detection, auto-capture, dewarping, enhancement, OCR, multi-page PDF |
+| Scanner | Uses your phone's camera (via KDE Connect) or the laptop camera: edge detection, auto-capture, dewarping, enhancement, OCR, multi-page PDF |
 | Lecture recording | Record while you write, tap a stroke to hear that moment, and get local Norwegian/English transcripts (NB-Whisper) that are searchable and usable by AI |
 | Planner | Timetable, homework, tests and exam dates (manual, screenshot/PDF import, ICS feeds, experimental InSchool). Exam dates drive your revision plan |
 | Math tools | Ruler, protractor, set square, compass, shape straightening, function plots from your handwriting |
