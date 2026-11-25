@@ -1,0 +1,31 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, what you expected, what you saw.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Pennoa version or commit
+  - type: dropdown
+    id: desktop
+    attributes:
+      label: Desktop / compositor
+      options: [Hyprland, KDE Plasma, Sway, niri, GNOME, Other]
+  - type: input
+    id: hardware
+    attributes:
+      label: Device and pen
+      placeholder: e.g. ThinkPad X1 Yoga Gen 8, Lenovo Integrated Pen
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Output of `pennoa --verbose`, if relevant. Remove any API keys first.
+      render: text

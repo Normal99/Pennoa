@@ -73,6 +73,11 @@ crates/
   pn-onenote       OneNote import (onenote_parser) + Microsoft Graph client (OneNote, OneDrive, optional Teams/Education)
   pn-import        context-source pipeline: PDF, DOCX/PPTX/XLSX, OneNote, images → pages and/or AI context
   pn-platform      per-OS traits: pen backend, camera/scanner, keyring, notifications, share, IME, background tasks
+  pn-tools         math and drawing tools: ruler, protractor, set square, compass, shape beautify, function plots
+  pn-templates     paper templates (built-in + user-made), locked background layers
+  pn-audio         lecture recording, stroke ↔ audio sync, playback, transcription client
+  pn-planner       timetable, homework and exam planner; school-platform connectors (ICS, Visma InSchool …)
+  pn-formats       import/export: PDF, Markdown+SVG, HTML, DOCX, InkML, .xopp, .rnote, OneNote; the documented native format
   pn-ipc           shared IPC protocol types
 apps/
   pennoa           main app
@@ -128,6 +133,39 @@ Rule: `pn-core`, `pn-ink`, `pn-store`, `pn-math`, `pn-learn` and `pn-ai` never d
 - Pressure → width mapping uses a configurable curve.
 - Palm rejection: while a pen is in proximity (hover), touch is ignored. Large contact areas are also rejected.
 - The lasso tool selects by *coverage*: a stroke is selected when at least 60% of its points fall inside the lasso.
+
+## 4b. Math and drawing tools (`pn-tools`)
+
+These are drawn and used with the pen, like real tools on a desk, and are rendered in the wet-ink layer so they stay at full frame rate.
+
+| Tool | Behaviour |
+|---|---|
+| **Ruler** | Two-finger placement and rotation, angle readout, cm/mm/inch scale. The pen snaps to its edge for straight lines |
+| **Protractor** | Rotatable half and full circle with a live angle readout; marks angles on the page |
+| **Set square** | 30-60-90 and 45-45-90; parallel and perpendicular lines |
+| **Compass** | Set the radius by dragging, draw arcs or circles with the pen |
+| **Shape beautify** | Hold the pen still at the end of a stroke to snap it to a line, circle, ellipse, rectangle, triangle, polygon or arrow. The original ink is kept, so this can be undone |
+| **Graph paper and axes** | A coordinate-system stamp with adjustable scale |
+| **Function plot** | Select a recognised function (`y = x² − 2x`) and choose *Plot*. It is evaluated with fend/Giac (§8), drawn as a vector curve with roots, extrema and intersections marked, and stays linked so you can edit and re-plot |
+| **Unit-aware tables** | Quick value tables for a recognised function, for physics and maths homework |
+
+Tools are atomic blocks in the layout engine (§10), so they are never split across pages.
+
+## 4c. Templates (`pn-templates`)
+
+**Built-in templates**
+- blank, lined, lined with margin, squared 5 mm, dotted, isometric;
+- **Cornell notes**;
+- graph paper with axes;
+- music staff;
+- **periodic table** (read-only reference layer);
+- weekly planner page;
+- exam-prep sheet: formula area plus questions.
+
+**How they work**
+- A template is a locked background layer, a vector SVG with fillable regions, so ink is never mixed into it.
+- Templates are set per page or as the notebook default, and can be changed later without touching the ink.
+- **User templates:** draw any page and choose "Save as template". Templates sync with the library, and can be shared as `.pennoa-template` files (a zipped SVG plus manifest).
 
 ## 5. Data model and file format
 
@@ -291,6 +329,13 @@ trait LlmProvider {
 4. Ask-AI retrieves the top-k chunks plus the current page and selection, and cites page numbers.
 5. Whole-PDF upload is used only when the user asks.
 
+**Tutor mode** (default for "explain" and quizzes)
+- Pennoa helps you *learn* rather than just giving answers.
+- It responds with hints, guiding questions and checks of your own working ("your step 2 dropped the minus sign").
+- It reveals the full solution only when you ask for it.
+- **Exam prep:** it builds practice tests from your textbook and notes, in your school's exam style, with timed sessions. Your weak topics feed the learning path (§12).
+- Pennoa has no "exam mode", by design. Schools lock devices down during exams anyway; for offline use there are the printable PDFs (§10).
+
 **Safety**
 - Textbook, notes and scan text are treated as untrusted data. They are fenced in prompts and never followed as instructions.
 - Keys are kept in the keyring.
@@ -430,6 +475,21 @@ Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/cla
 - **Consent errors** (AADSTS65001/90094) show a friendly screen. It includes the admin-consent link to send to IT and points to the file route.
 - **School lock-down.** Some school tenants block all third-party apps (e.g. School Data Sync's Conditional Access option). Then only the file routes work, and the UI says so plainly.
 
+## 13c. Formats and no lock-in (`pn-formats`)
+
+Your notes must outlive Pennoa.
+
+**The native format is documented and stable.**
+- `docs/FORMAT.md` (to write in Phase 1) specifies the library layout, the Automerge page schema and the point encoding.
+- It carries a version number with forward migrations, and a test corpus of sample files.
+- An independent reader should be able to load everything without Pennoa's code.
+
+| Direction | Formats |
+|---|---|
+| **Export** | PDF (vector ink + searchable text layer); **Markdown + SVG** (one `.md` per page, ink as SVG, math as LaTeX); HTML (self-contained); **DOCX** (recognised text + ink images); **InkML** (W3C standard for digital ink: strokes with pressure and timing); PNG/JPEG; plain text and LaTeX; **Xournal++ `.xopp`**; OneNote (upload via Graph) |
+| **Import** | OneNote (§13b); **Xournal++ `.xopp`**; **Rnote `.rnote`**; InkML; PDF (annotate on top); DOCX/PPTX/XLSX (as context and pages); images and scans; Markdown |
+| **Bulk** | "Export everything": the whole library to a folder of Markdown + SVG + PDF in one click, also scheduled as part of backups (§6) |
+
 ## 13a. Internationalisation (UI)
 - UI strings use **Project Fluent** (`fluent-rs`) `.ftl` files. **English and Norwegian (nb, nn) ship first**; translations are community-maintained afterwards (Weblate).
 - **Fonts:** Inter for Latin, Greek and Cyrillic. The **Noto** family covers all other scripts, as bundled fallbacks or system fonts via fontconfig.
@@ -439,6 +499,11 @@ Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/cla
 
 ## 14. Security and privacy
 
+Pennoa is a free, open-source tool, not a product that collects data. It simply has no servers to send data to. The privacy features exist because students, many of them under 18, deserve control, not because of a business model.
+- **Cloud AI is used only when you ask.** The first time, the app explains which provider receives what.
+- **Per-subject "never send to the cloud" switch.** Personal subjects such as a diary stay strictly local.
+- **No accounts.** Your API keys and storage are your own.
+
 - **No telemetry.** Crash reports are opt-in and stored locally.
 - **Network calls happen only** for sync, AI requests you trigger, model downloads (sha256-pinned), and OneNote.
 - **Untrusted inputs:**
@@ -446,6 +511,25 @@ Each subject has a **Sources** list: textbooks (PDF), OneNote imports, Teams/cla
   - All file parsers are fuzzed (`cargo-fuzz`).
 - **Secrets** live only in the keyring. API keys never appear in logs or the repository.
 - **Encryption at rest on remotes** is optional, via `age`.
+
+## 14c. Accessibility
+
+- **Screen readers:**
+  - Slint's accessibility tree is exposed via AccessKit: AT-SPI and Orca on Linux, later UIA, NSAccessibility and Android.
+  - Because Pennoa runs Slint as a custom platform, the AccessKit adapter is wired up in our own event loop.
+  - The canvas exposes **recognised text** of each ink region, so handwritten notes are readable aloud.
+- **Keyboard:**
+  - Every function is reachable from the keyboard, with a visible focus ring and shortcuts for every tool.
+  - A command palette (`Ctrl+K`).
+- **Vision and reading:**
+  - A high-contrast theme, and UI scale independent of system scaling.
+  - A dyslexia-friendly font option (OpenDyslexic, OFL) for typed and recognised text.
+  - Adjustable line spacing in text view.
+- **Motor:**
+  - **Left-handed mode**: mirrored toolbars and selection capsule, and palm rejection tuned for the other side.
+  - Adjustable pressure curve, stroke stabiliser, and tap targets of at least 44 px.
+- **Motion:** reduced motion replaces springs with short fades and follows the system setting.
+- **Audio:** recordings have transcripts (§12c), so they're accessible to deaf and hard-of-hearing students.
 
 ## 14b. Platforms (ADR-0011)
 
