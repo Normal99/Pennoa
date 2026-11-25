@@ -67,7 +67,7 @@ crates/
   pn-ai            LLM providers (Anthropic, OpenRouter, local), retrieval (RAG), prompt library
   pn-pdf           import (pdfium-render, hayro), export (krilla, typst)
   pn-layout        block clustering, reading order, auto/manual pagination of canvases
-  pn-scan          camera (ashpd + PipeWire), detection, dewarp, enhance, OCR, assembly
+  pn-scan          detection, dewarp, enhance, OCR, assembly; capture sources: phone QR page (axum), KDE Connect, camera portal
   pn-learn         learning paths, quiz generation, FSRS scheduling, focus timer
   pn-kdeconnect    zbus adapter for kdeconnectd
   pn-onenote       OneNote import (onenote_parser) + Microsoft Graph client (OneNote, OneDrive, optional Teams/Education)
@@ -84,6 +84,7 @@ apps/
   pennoa-ml        model-host process
   pennoa-ime       input-method process (zwp_input_method_v1)
   pn-bench         recognition and latency benchmarks
+  pennoa-scan (Android)  companion scanner app: CameraX + pn-scan via JNI
 ```
 
 Rule: `pn-core`, `pn-ink`, `pn-store`, `pn-math`, `pn-learn` and `pn-ai` never depend on UI crates. Every feature is testable headless.
@@ -375,11 +376,45 @@ trait LlmProvider {
 - **Export of AI summaries:** an LLM generates structured JSON, which is rendered through a Typst template (`typst` + `typst-pdf` embedded via a `World` implementation, with fonts bundled). The math is real typeset math.
 - Printing goes through the XDG print portal.
 
-## 11. Scanner
+## 11. Scanner (ADR-0015)
+
+The phone is the main camera, because many 2-in-1s, including the ThinkPad X1 Yoga, have no keyboard-side camera. There are three ways in, all ending in the same laptop-side pipeline.
+
+**1. "Scan with phone" by QR code (no install, Phase 6)**
+1. Choosing *Scan* in Pennoa starts a tiny local web server (`axum`) bound to the LAN interface. It runs only while the scanner sheet is open, and shows a QR code.
+2. The QR code holds `http://<laptop-ip>:<port>/s/<one-time token>`.
+   - The token is 128-bit random, single use, and expires after 10 minutes or when the sheet closes.
+   - Only one phone can pair per session; others are rejected.
+3. The phone's browser opens a small page (no JavaScript framework, a few KB) with one big button: `<input type="file" accept="image/*" capture="environment" multiple>`.
+   - This opens the phone's **own camera app**, so you get full resolution, autofocus and flash.
+   - It works over plain HTTP, because unlike live camera access in the browser it doesn't need HTTPS.
+4. Each photo uploads immediately, and appears in Pennoa's page tray as it arrives. The phone page shows a thumbnail strip and a "Done" button.
+5. **Safety:**
+   - Uploads are limited to images, at most 25 MB each and 200 per session.
+   - They are decoded in a sandboxed worker.
+   - Nothing is served except the capture page.
+   - The server stops when the sheet closes.
+   - Settings has a "Allow phone scanning on this network" switch, off on networks marked public.
+
+**2. Share from any scanner app (KDE Connect)**
+- Scan with Google Drive, Adobe Scan, Genius Scan or the iPhone's built-in scanner, then share to the PC via KDE Connect. Pennoa's scan inbox receives the result (`shareReceived`).
+- Already-cropped PDFs are taken as they are; photos go through the pipeline below.
+
+**3. Pennoa Scan companion app (Android first, Phase 10b)**
+- A small native app with:
+  - live edge detection in the viewfinder;
+  - **auto-capture** when the page is steady, and when you turn a book page;
+  - multi-page batches;
+  - pairing with the laptop by the same QR code (then remembered).
+- It reuses the Rust detection and dewarp code (`pn-scan`) through JNI, with CameraX for capture. It's the first step towards the full Android app (Phase 11).
+- Pages go to the laptop over the LAN (or KDE Connect as fallback), and are processed there at full quality.
+- iPhone version: only if and when the project publishes on the App Store.
+
+**Laptop camera:** still supported via the `ashpd` Camera portal + PipeWire (front camera in tablet posture, or a world-facing camera where one exists; Intel IPU6 MIPI cameras need libcamera).
 
 | Stage | Implementation |
 |---|---|
-| Capture | **Phone camera via KDE Connect** (`shareReceived`), the primary route because many 2-in-1s, including the ThinkPad X1 Yoga, have no keyboard-side camera; the laptop's front camera (folded into tablet posture) or a world-facing camera through the `ashpd` Camera portal + PipeWire, which needs libcamera for Intel IPU6 MIPI cameras |
+| Capture | Phone via QR-code page (1), KDE Connect share (2) or Pennoa Scan (3); laptop camera via portal |
 | Detect | Document quad by edge and line detection (classic CV in Rust); auto-capture when the quad is stable for 600 ms |
 | Rectify | Perspective warp; **UVDoc** (MIT, ONNX) for curved pages and book mode; two-page split |
 | Enhance | Modes: colour, greyscale, B/W, whiteboard. **DocRes** (MIT) for shadow removal and deblur; classic CLAHE as the fast path |
