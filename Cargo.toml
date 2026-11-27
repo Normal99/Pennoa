@@ -1,0 +1,50 @@
+[workspace]
+resolver = "3"
+members = ["crates/pn-ink", "crates/pn-giac"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+rust-version = "1.89"
+license = "GPL-3.0-or-later WITH LicenseRef-Pennoa-additional-permissions"
+repository = "https://github.com/Normal99/Pennoa"
+publish = false
+
+[workspace.dependencies]
+# Pennoa crates
+pn-ink = { path = "crates/pn-ink" }
+pn-giac = { path = "crates/pn-giac" }
+
+# Rendering and UI (wgpu 30 is shared by Slint's unstable-wgpu-30 and vello 0.12)
+wgpu = "30"
+vello = "0.12"
+kurbo = "0.13"
+peniko = "0.6"
+slint = { version = "~1.19", default-features = false }
+
+# Wayland
+wayland-client = "0.31"
+wayland-backend = { version = "0.3", features = ["client_system"] }
+wayland-protocols = { version = "0.32", features = ["client", "unstable", "staging"] }
+raw-window-handle = "0.6"
+
+# General
+anyhow = "1"
+clap = { version = "4.6", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+pollster = "1"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+proptest = "1"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+
+[workspace.lints.clippy]
+dbg_macro = "warn"
+
+[profile.release]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+opt-level = 2

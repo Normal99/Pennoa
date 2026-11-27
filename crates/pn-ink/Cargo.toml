@@ -1,0 +1,18 @@
+[package]
+name = "pn-ink"
+description = "Pennoa ink model: samples, strokes and the compact point encoding"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+kurbo.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+
+[lints]
+workspace = true

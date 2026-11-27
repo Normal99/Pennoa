@@ -1,0 +1,21 @@
+[package]
+name = "pn-giac"
+description = "Pennoa bridge to the Giac computer algebra system (GPL-3.0-or-later)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+# Links against Giac, which is GPL-3.0-or-later without Pennoa's §7 permissions (see ADR-0011).
+license = "GPL-3.0-or-later"
+repository.workspace = true
+publish.workspace = true
+links = "giac"
+
+[dependencies]
+cxx = "1"
+
+[build-dependencies]
+cxx-build = "1"
+pkg-config = "0.3"
+
+[lints]
+workspace = true
