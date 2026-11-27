@@ -108,7 +108,11 @@ Rule: `pn-core`, `pn-ink`, `pn-store`, `pn-math`, `pn-learn` and `pn-ai` never d
 3. **Rendering into one wgpu surface, back to front:**
    1. Page background and *committed* ink. These are rendered by **vello** (0.12, or vello_gpu once it stabilises) into cached 512 px tiles per zoom level and only re-rendered when they change.
    2. **Wet ink.** The stroke in progress (plus predicted points) is drawn every frame as a tessellated triangle strip by a tiny dedicated wgpu pipeline. This keeps the latency-critical path free of vector rasterisation. On pen-up the stroke is committed and its tiles are invalidated.
-   3. **Slint UI**, rendered through Slint's wgpu integration (`unstable-wgpu-*`, pinned to one Slint minor) with `set_rendering_notifier` drawing our layers underneath.
+   3. **Slint UI**, rendered through Slint's wgpu integration (`unstable-wgpu-*`, pinned to one Slint minor).
+   - **Canvas on its own subsurface** (Phase 0 finding, ADR-0001). Slint presents with vsync only.
+     - The page canvas is a desynchronised `wl_subsurface` with its own swapchain (Mailbox) and an optional tearing hint.
+     - In the headless test this halved input→screen time (24 ms vs 47 ms).
+     - Floating tools (pen toolbar, selection capsule, island) are Slint content on a subsurface stacked above the canvas.
    - Smoothing uses **ink-stroke-modeler-rs** (MIT/Apache, the same modeller Rnote uses), with kurbo for geometry.
 4. **Latency tricks:**
    - Request redraws on input, not on a timer, using the `Mailbox`/`Fifo` present mode chosen by measurement.

@@ -727,6 +727,11 @@ fn main() -> anyhow::Result<()> {
         .backend_name("winit".into())
         .require_wgpu_30(slint::wgpu_30::WGPUConfiguration::default())
         .with_winit_custom_application_handler(Handler(shared.clone()))
+        // Wayland app_id "pennoa": lets the Hyprland rule in contrib/hyprland/pennoa.conf match.
+        .with_winit_window_attributes_hook(|attrs| {
+            use winit::platform::wayland::WindowAttributesExtWayland;
+            attrs.with_name("pennoa", "pennoa")
+        })
         .select()?;
 
     let app = PenSpike::new()?;

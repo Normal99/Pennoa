@@ -2,7 +2,7 @@
 
 **Pennoa is a fast, local-first notebook for students on pen-enabled Linux laptops.** You write by hand, and it turns your handwriting into text and math, explains it with AI and calculates it. It also scans, exports, quizzes you and syncs to storage you already own.
 
-> Status: **design phase**. This repository contains the architecture, research, roadmap and UI design. There is no application code yet.
+> Status: **Phase 0** (prototypes). It contains the design docs, the first crates (`pn-ink`, `pn-giac`, `pn-bench`) and the spikes. See [`docs/PHASE0.md`](docs/PHASE0.md).
 > Licence: **GPL-3.0-or-later** with two additional permissions, for app-store distribution and for Slint's royalty-free licence. See `LICENSE` and `LICENSE-ADDITIONAL-PERMISSIONS.md`; contributors, see `CONTRIBUTING.md`.
 
 ## Why
@@ -40,6 +40,7 @@ Pennoa targets 2-in-1 laptops such as the Lenovo Yoga, which have a pen and a ke
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): crates, data model and every subsystem
 - [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md): the "Calm Aero" visual language, tokens, motion and screens
 - [`docs/ROADMAP.md`](docs/ROADMAP.md): phases and their exit criteria
+- [`docs/PHASE0.md`](docs/PHASE0.md): **Phase 0 status and the X1 Yoga hand-over guide**
 - [`docs/RESEARCH.md`](docs/RESEARCH.md): verified library, model, licence and terms findings (Nov 2026)
 - [`docs/adr/`](docs/adr/): decision records
 - [`design/prototype/`](design/prototype/): source of the interactive UI prototype

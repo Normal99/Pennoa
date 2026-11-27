@@ -15,6 +15,14 @@
 - **When Slint adopts winit ≥ 0.31:** switch to winit's native `TabletTool` events through the same handler.
 - **Rendering:** one wgpu surface, with vello tiles + a wet-ink pipeline under the Slint UI (`set_rendering_notifier`). Pin a single Slint minor version (start with 1.19).
 
+## Phase 0 finding (2026-11-27, headless Weston)
+- Slint's wgpu renderer always presents with `AutoVsync` (FIFO), so ink drawn *inside* Slint waits for vsync. Median input→screen was **46.9 ms**.
+- Ink on **our own desynchronised `wl_subsurface`** with its own swapchain (Mailbox) and an optional `wp_tearing_control_v1` hint measured **24.4 ms**, about half.
+- **Leading candidate:**
+  - the canvas lives on its own subsurface;
+  - Slint draws the UI around it, and floating tools sit on a subsurface above it;
+  - the pen spike (`spikes/pen`, `--mode texture|subsurface`) measures both on the X1 Yoga.
+
 ## Consequences
 - Accessibility, IME and touch come from Slint, maintained upstream.
 - We maintain a small Wayland tablet listener (~1 crate) until Slint moves to winit 0.31.
