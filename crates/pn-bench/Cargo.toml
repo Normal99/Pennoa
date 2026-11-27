@@ -1,0 +1,22 @@
+[package]
+name = "pn-bench"
+description = "Pennoa benchmarks: handwriting-recognition accuracy and speed, speech-to-text WER"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml = "1"
+base64 = "0.23"
+unicode-normalization = "0.1"
+reqwest = { version = "0.13", default-features = false, features = ["blocking", "json", "multipart", "rustls", "charset", "http2", "system-proxy"] }
+
+[lints]
+workspace = true

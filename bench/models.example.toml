@@ -1,0 +1,52 @@
+# Copy to models.toml and adjust. Every entry is benchmarked on every page.
+# API keys are read from environment variables; never write keys in this file.
+#
+# Local models run in llama.cpp's server, one at a time, e.g.:
+#   llama-server -hf <user>/<repo>-GGUF:Q4_K_M --port 8080 -ngl 99
+# (`-hf` downloads the model and its vision projector from Hugging Face.)
+# Check each repo's model card for the exact name, licence and recommended quant.
+
+# --- local, open-weight (Apache-2.0 / MIT) ---------------------------------
+
+[[model]]
+name = "qwen3.5-4b (local)"
+api = "openai"
+base_url = "http://127.0.0.1:8080/v1"
+model = "qwen3.5-4b"          # llama-server ignores the name; it serves whatever it loaded
+tasks = ["text", "math"]
+
+# [[model]]
+# name = "uni-mumer-qwen3.5-4b (local, math)"
+# api = "openai"
+# base_url = "http://127.0.0.1:8081/v1"
+# model = "uni-mumer"
+# tasks = ["math"]
+
+# [[model]]
+# name = "glm-ocr 0.9b (local)"
+# api = "openai"
+# base_url = "http://127.0.0.1:8082/v1"
+# model = "glm-ocr"
+# tasks = ["text"]
+
+# [[model]]
+# name = "gemma-4-e4b (local)"
+# api = "openai"
+# base_url = "http://127.0.0.1:8083/v1"
+# model = "gemma-4-e4b"
+
+# --- cloud (Tier C) --------------------------------------------------------
+
+# [[model]]
+# name = "claude-opus-5-5"
+# api = "anthropic"
+# model = "claude-opus-5-5"
+# api_key_env = "ANTHROPIC_API_KEY"
+# effort = "low"              # transcription doesn't need deep reasoning
+
+# [[model]]
+# name = "deepseek-v4.1-flash (OpenRouter)"
+# api = "openai"
+# base_url = "https://openrouter.ai/api/v1"
+# model = "deepseek/deepseek-v4.1-flash"
+# api_key_env = "OPENROUTER_API_KEY"

@@ -3,7 +3,8 @@
 Pennoa is licensed under the GNU General Public License, version 3 or (at your option) any later version (`LICENSE`), **with the two additional permissions below**.
 
 SPDX identifier for Pennoa's own source files:
-`GPL-3.0-or-later WITH LicenseRef-Pennoa-additional-permissions`
+`GPL-3.0-or-later WITH AdditionRef-Pennoa-additional-permissions`
+(`AdditionRef-` is SPDX 2.3's form for custom additional permissions. `Cargo.toml` files carry the plain `GPL-3.0-or-later`, because crates.io accepts only standard identifiers.)
 
 These permissions apply only to code whose copyright is held by the Pennoa authors. They do not change the licence of third-party components. For example, Giac remains GPL-3.0 without these permissions, and is handled separately in ADR-0011.
 
@@ -29,6 +30,6 @@ You must comply with that Slint licence for the Slint parts, including its attri
 
 ---
 
-If you modify Pennoa, you may extend these additional permissions to your version, but you are not obliged to. If you do not wish to, delete this file and the `WITH LicenseRef-Pennoa-additional-permissions` part of the licence identifiers from your version.
+If you modify Pennoa, you may extend these additional permissions to your version, but you are not obliged to. If you do not wish to, delete this file and the `WITH AdditionRef-Pennoa-additional-permissions` part of the licence identifiers from your version.
 
 *These texts are modelled on established practice (for example KDE Connect for iOS, and the GCC Runtime Library Exception). Have them reviewed by a lawyer or the FSF/FSFE licensing team before the first App Store release.*

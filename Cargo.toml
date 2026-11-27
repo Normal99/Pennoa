@@ -1,12 +1,14 @@
 [workspace]
 resolver = "3"
-members = ["crates/pn-ink", "crates/pn-giac", "spikes/tiles", "spikes/pen"]
+members = ["crates/pn-ink", "crates/pn-giac", "crates/pn-bench", "spikes/tiles", "spikes/pen"]
 
 [workspace.package]
 version = "0.0.1"
 edition = "2024"
 rust-version = "1.89"
-license = "GPL-3.0-or-later WITH LicenseRef-Pennoa-additional-permissions"
+# SPDX: GPL-3.0-or-later WITH AdditionRef-Pennoa-additional-permissions (see LICENSE-ADDITIONAL-PERMISSIONS.md).
+# Cargo/crates.io only accept plain SPDX ids, so manifests carry the base licence.
+license = "GPL-3.0-or-later"
 repository = "https://github.com/Normal99/Pennoa"
 publish = false
 
