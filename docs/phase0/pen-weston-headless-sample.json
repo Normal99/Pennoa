@@ -1,0 +1,198 @@
+{
+  "args": {
+    "demo": true,
+    "mode": "Subsurface",
+    "present": [
+      "fifo"
+    ],
+    "report": "/tmp/claude-0/-home-user-pennoa/62eccc24-5124-5081-8e57-07b34dbc0eaf/scratchpad/r.json",
+    "seconds": 8,
+    "tearing": false,
+    "width": 2.6
+  },
+  "canvas_present_mode": "Fifo",
+  "debug_first_frames_event_recv_presented_ns": [
+    [
+      2027888727045,
+      2027888727045,
+      2027614980057
+    ],
+    [
+      2027926227048,
+      2027926227048,
+      2027642886812
+    ],
+    [
+      2027942893716,
+      2027942893716,
+      2027669373685
+    ],
+    [
+      2027959560384,
+      2027959560384,
+      2027695933434
+    ],
+    [
+      2027984560386,
+      2027984560386,
+      2027722448521
+    ],
+    [
+      2028013727055,
+      2028013727055,
+      2027748951482
+    ],
+    [
+      2028038727057,
+      2028038727057,
+      2027775290767
+    ],
+    [
+      2028067893726,
+      2028067893726,
+      2027801583806
+    ],
+    [
+      2028088727061,
+      2028088727061,
+      2027828391782
+    ],
+    [
+      2028117893730,
+      2028117893730,
+      2027854806972
+    ],
+    [
+      2028147060399,
+      2028147060399,
+      2027881824110
+    ],
+    [
+      2028180393735,
+      2028180393735,
+      2027909220193
+    ],
+    [
+      2028209560404,
+      2028209560404,
+      2027936051761
+    ],
+    [
+      2028226227072,
+      2028226227072,
+      2027962722905
+    ],
+    [
+      2028251227074,
+      2028251227074,
+      2027989206446
+    ],
+    [
+      2028276227076,
+      2028276227076,
+      2028015657355
+    ],
+    [
+      2028301227078,
+      2028301227078,
+      2028042178493
+    ],
+    [
+      2028330393747,
+      2028330393747,
+      2028069140438
+    ],
+    [
+      2028359560416,
+      2028359560416,
+      2028095510081
+    ],
+    [
+      2028384560418,
+      2028384560418,
+      2028121937238
+    ]
+  ],
+  "device": {
+    "buttons_seen": [],
+    "eraser_seen": false,
+    "frames": 0,
+    "globals": [
+      "wl_compositor v5",
+      "wl_subcompositor v1",
+      "wp_viewporter v1",
+      "zxdg_output_manager_v1 v2",
+      "wp_presentation v1",
+      "wp_single_pixel_buffer_manager_v1 v1",
+      "wp_tearing_control_manager_v1 v1",
+      "zwp_relative_pointer_manager_v1 v1",
+      "zwp_pointer_constraints_v1 v1",
+      "zwp_input_timestamps_manager_v1 v1",
+      "weston_capture_v1 v1",
+      "wl_data_device_manager v3",
+      "wl_shm v1",
+      "zwp_linux_dmabuf_v1 v3",
+      "zwp_linux_explicit_synchronization_v1 v2",
+      "wl_output v4",
+      "zwp_input_panel_v1 v1",
+      "zwp_text_input_manager_v1 v1",
+      "xdg_wm_base v5",
+      "weston_desktop_shell v1"
+    ],
+    "pads": 0,
+    "presentation_clock_id": 4,
+    "pressure_max": null,
+    "pressure_min": null,
+    "tablets": [],
+    "tilt_seen": false,
+    "tool_capabilities": [],
+    "tools": []
+  },
+  "display_refresh_hz": 60.0000024000001,
+  "errors": [],
+  "feedback_requested": 289,
+  "frames_discarded": 0,
+  "latency": {
+    "input_to_present_tearing": null,
+    "input_to_present_vsync": {
+      "frames": 286,
+      "max_ms": 74.35479,
+      "min_ms": 48.719634,
+      "p50_ms": 69.337898,
+      "p95_ms": 72.472955
+    },
+    "oldest_input_to_present_tearing": null,
+    "oldest_input_to_present_vsync": {
+      "frames": 286,
+      "max_ms": 449.979567,
+      "min_ms": 71.039833,
+      "p50_ms": 91.629165,
+      "p95_ms": 94.944775
+    },
+    "recv_to_present_tearing": null,
+    "recv_to_present_vsync": {
+      "frames": 286,
+      "max_ms": 74.35479,
+      "min_ms": 48.719634,
+      "p50_ms": 69.337898,
+      "p95_ms": 72.472955
+    }
+  },
+  "note": "input_to_present uses the compositor's input timestamp (assumed CLOCK_MONOTONIC, presentation clock id 1). Add the display's scan-out/response time (~5-10 ms) for true pen-to-photon.",
+  "pennoa_spike": "pen",
+  "presented_events": 286,
+  "sample_rate_hz": 241.00416482008524,
+  "samples_total": 1929,
+  "session": {
+    "desktop": null,
+    "hyprland": false,
+    "scale": 1.0,
+    "wayland_display": "wl-test",
+    "window_logical": [
+      1280.0,
+      800.0
+    ]
+  },
+  "tearing_control_available": true,
+  "touches_while_pen_near": 0
+}

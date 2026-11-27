@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/pn-ink", "crates/pn-giac", "spikes/tiles"]
+members = ["crates/pn-ink", "crates/pn-giac", "spikes/tiles", "spikes/pen"]
 
 [workspace.package]
 version = "0.0.1"

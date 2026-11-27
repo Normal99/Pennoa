@@ -1,0 +1,23 @@
+[package]
+name = "spike-pen"
+description = "Phase 0 spike: pen pressure/tilt via Wayland tablet-v2 next to Slint, wet ink, measured pen-to-photon latency"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+slint = { version = "~1.19", default-features = false, features = ["std", "compat-1-2", "backend-winit-wayland", "renderer-femtovg-wgpu", "unstable-wgpu-30", "unstable-winit-030", "accessibility"] }
+wayland-client.workspace = true
+wayland-backend.workspace = true
+wayland-protocols.workspace = true
+raw-window-handle.workspace = true
+bytemuck = { version = "1", features = ["derive"] }
+libc = "0.2"
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+
+[lints]
+workspace = true
