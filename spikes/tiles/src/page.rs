@@ -32,7 +32,7 @@ pub fn synthetic_page(lines: usize) -> Vec<Stroke> {
                 let loops = 1.0 + rng.next() * 3.0;
                 let len = 4.0 + rng.next() * 8.0;
                 let n = (60.0 + rng.next() * 120.0) as usize;
-                let phase = rng.next() * 6.28;
+                let phase = rng.next() * std::f32::consts::TAU;
                 let height = 2.5 + rng.next() * 2.0;
                 let samples = (0..n)
                     .map(|i| {
