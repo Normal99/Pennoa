@@ -1,0 +1,38 @@
+{
+  "adapter": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "backend": "Vulkan",
+  "strokes": 581,
+  "samples": 70432,
+  "encoded_bytes": 497612,
+  "bytes_per_sample": 7.065140845070423,
+  "outline_build_ms": 7.694028,
+  "zooms": [
+    {
+      "px_per_mm": 4.6,
+      "tiles": 6,
+      "tiles_with_ink": 6,
+      "tile_ms_median": 13.375242,
+      "tile_ms_p95": 15.93237,
+      "tile_ms_max": 15.93237,
+      "full_page_ms": 1461.9415445000002
+    },
+    {
+      "px_per_mm": 9.2,
+      "tiles": 24,
+      "tiles_with_ink": 20,
+      "tile_ms_median": 6.4468,
+      "tile_ms_p95": 7.799276,
+      "tile_ms_max": 8.153279,
+      "full_page_ms": 147.98009100000002
+    },
+    {
+      "px_per_mm": 18.4,
+      "tiles": 88,
+      "tiles_with_ink": 72,
+      "tile_ms_median": 4.489456000000001,
+      "tile_ms_p95": 6.025469999999999,
+      "tile_ms_max": 7.113641,
+      "full_page_ms": 388.4127105
+    }
+  ]
+}

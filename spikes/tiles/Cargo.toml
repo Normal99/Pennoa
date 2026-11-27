@@ -1,0 +1,20 @@
+[package]
+name = "spike-tiles"
+description = "Phase 0 spike: render handwriting pages into cached vello tiles and time it"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+pn-ink.workspace = true
+vello.workspace = true
+anyhow.workspace = true
+pollster.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+image.workspace = true
+
+[lints]
+workspace = true
